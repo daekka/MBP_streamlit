@@ -17,11 +17,14 @@ def procesar_OCCIDENT():
     columna_id_polizas = "NIF"
     st.session_state.df_OCCIDENT['polizas'] = procesar_polizas(compañia, st.session_state.df_origen_compañias['df_occident_polizas'], st.session_state.df_origen_compañias['df_occident_clientes'], st.session_state.df_OCCIDENT['polizas'], columna_cliente_poliza_origen, columna_cliente_clientes_origen, columna_id_polizas)
 
-    # Procesar recibos
+    # Aplicar ambos filtros con la corrección
     st.session_state.df_origen_compañias['df_occident_recibos'] = st.session_state.df_origen_compañias['df_occident_recibos'][
-        (st.session_state.df_origen_compañias['df_occident_recibos']['Agente'].str.strip().str.upper() == 'M832793V') & 
+        (st.session_state.df_origen_compañias['df_occident_recibos']['Agente'].str.strip() == 'M832793V') & 
         (st.session_state.df_origen_compañias['df_occident_recibos']['Situación del recibo'].str.strip().isin(['Cobrado', 'Pendiente']))
     ]
+    
+    st.write("Datos de recibos después de filtrar:")
+    st.write(f"Número de filas: {len(st.session_state.df_origen_compañias['df_occident_recibos'])}")
     
     fecha_orden = "Fecha emisión";
     prima_orden = "Prima total";

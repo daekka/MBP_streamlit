@@ -5,6 +5,10 @@ from io import BytesIO
 import pandas as pd
 from pyxlsb import open_workbook as open_xlsb
 import streamlit as st
+import warnings
+
+# Suprimir la advertencia específica de validación de datos de openpyxl
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
 # Configuración de sheets y headers por compañía
 CONFIG_EXCEL = {
@@ -266,8 +270,12 @@ def procesar_clientes_desde_polizas(
                         datos_mapeados[columna_destino] = cliente_data[columna_origen].replace('\r\n', ' ')
                     else:
                         datos_mapeados[columna_destino] = cliente_data[columna_origen]
+                else:
+                    datos_mapeados[columna_destino] = None
+            df_temp = pd.DataFrame([datos_mapeados]).dropna(how='all')
+            
             # Agregar los datos mapeados al DataFrame resultado
-            df_resultado = pd.concat([df_resultado, pd.DataFrame([datos_mapeados])], ignore_index=True)
+            df_resultado = pd.concat([df_resultado, df_temp], ignore_index=True)
         else:
             # Si no se encuentra el cliente, mostrar un mensaje de advertencia
             nombre_cliente = fila[columna_cliente_poliza_origen]
@@ -306,7 +314,12 @@ def procesar_polizas(
 
             # Si se encuentra un nombre equivalente y la columna existe en cliente_data, agregar el valor al diccionario
             if columna_origen is not None and not pd.isna(columna_origen) and columna_origen not in datos_mapeados:
-                datos_mapeados[columna_destino] = poliza[columna_origen]
+                if columna_destino == 'N_POLIZA':
+                    datos_mapeados[columna_destino] = str(poliza[columna_origen])
+                else:
+                    datos_mapeados[columna_destino] = poliza[columna_origen]
+            else:
+                datos_mapeados[columna_destino] = None
 
         # Buscar en dfClientesCompania por columna_cliente_clientes_origen el campo columna_id_polizas
         cliente_encontrado = dfClientesCompania[dfClientesCompania[columnaClienteClientesOrigen] == poliza[columnaClientePolizaOrigen]]
@@ -316,8 +329,10 @@ def procesar_polizas(
             datos_mapeados['CLIENTE'] = cliente_encontrado[columnaClienteClientesOrigen].values[0]
         
         datos_mapeados['GRUPO_ASEGURADOR'] = compania
+
+        df_temp = pd.DataFrame([datos_mapeados]).dropna(how='all')
         # Agregar los datos mapeados al DataFrame resultado
-        df_resultado = pd.concat([df_resultado, pd.DataFrame([datos_mapeados])], ignore_index=True)
+        df_resultado = pd.concat([df_resultado, df_temp], ignore_index=True)
 
     return df_resultado
 
@@ -333,18 +348,26 @@ def procesarRecibos(compania, df_plantilla_RECIBOS, df_origen_recibos):
         for columna_destino in df_plantilla_RECIBOS.columns:
             # Buscar el nombre equivalente en la plantilla
             columna_origen = obtenerNombreColumnaConversion(
-                st.session_state.df_plantillas_tablas['polizas'], 
+                st.session_state.df_plantillas_tablas['recibos'], 
                 compania, 
                 columna_destino
             )
 
             # Si se encuentra un nombre equivalente y la columna existe en cliente_data, agregar el valor al diccionario
             if columna_origen is not None and not pd.isna(columna_origen) and columna_origen not in datos_mapeados:
-                datos_mapeados[columna_destino] = recibo[columna_origen]
+                if columna_destino == 'ID_Poliza':
+                    datos_mapeados[columna_destino] = str(recibo[columna_origen])
+                else:
+                    datos_mapeados[columna_destino] = recibo[columna_origen]
+            else:
+                datos_mapeados[columna_destino] = None
         
         datos_mapeados['GRUPO_ASEGURADOR'] = compania
 
+        # Crear un DataFrame temporal con los datos mapeados
+        df_temp = pd.DataFrame([datos_mapeados]).dropna(how='all')
+        
         # Agregar los datos mapeados al DataFrame resultado
-        df_resultado = pd.concat([df_resultado, pd.DataFrame([datos_mapeados])], ignore_index=True)
+        df_resultado = pd.concat([df_resultado, df_temp], ignore_index=True)
 
     return df_resultado
