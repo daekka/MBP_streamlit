@@ -191,6 +191,7 @@ def leer_plantillas_tablas():
     st.session_state.df_plantillas_tablas['clientes'] = pd.read_excel("tablas_origen\\tablas_conversion_clientes.xlsx")
     st.session_state.df_plantillas_tablas['polizas'] = pd.read_excel("tablas_origen\\tablas_conversion_polizas.xlsx")
     st.session_state.df_plantillas_tablas['recibos'] = pd.read_excel("tablas_origen\\tablas_conversion_recibos.xlsx")
+    st.session_state.df_plantillas_tablas['renovaciones']= pd.read_excel("tablas_origen\\tablas_conversion_renovaciones.xlsx")
 
 
 def crear_df_vacio_desde_plantilla(df_original):
@@ -208,6 +209,9 @@ def crear_df_compañias_vacios():
     
     st.session_state.df_PRODUCCIONTOTAL['clientes'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['clientes'])
     st.session_state.df_PRODUCCIONTOTAL['polizas'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['polizas'])
+
+    st.session_state.df_renovaciones = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['renovaciones'])
+
 
 def obtenerNombreColumnaConversion(plantilla, nombre_compania, nombre_campo):
     """
@@ -440,3 +444,10 @@ def rellenar_datos_faltantes_con_PT(df_base, df_complemento, columna_clave):
         return df_base
     
 
+def descargar_ficheros_completos(fecha_actual):
+    with BytesIO() as output:
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        st.session_state.df_COMPLETO_CLIENTES.to_excel(writer, sheet_name='Clientes')
+        st.session_state.df_COMPLETO_POLIZAS.to_excel(writer, sheet_name='Polizas')
+        writer.save()
+        st.download_button(label="Descargar datos completos", data=output.getvalue(), file_name=f"datos_completos_{fecha_actual}.xlsx")

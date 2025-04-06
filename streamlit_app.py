@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios, rellenar_datos_faltantes_con_PT, to_excel
+from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios, rellenar_datos_faltantes_con_PT, to_excel, descargar_ficheros_completos
 from scripts.occident import procesar_OCCIDENT
 from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
@@ -19,6 +19,8 @@ if 'df_COMPLETO_CLIENTES' not in st.session_state:
     st.session_state.df_COMPLETO_CLIENTES = {}
 if 'df_COMPLETO_POLIZAS' not in st.session_state:
     st.session_state.df_COMPLETO_POLIZAS = {}
+if 'df_renovaciones' not in st.session_state:
+    st.session_state.df_renovaciones = pd.DataFrame()
 
 # Configurar Streamlit para usar todo el ancho de la pantalla
 st.set_page_config(layout="wide")
@@ -86,7 +88,7 @@ if uploaded_file is not None:
         st.dataframe(st.session_state.df_COMPLETO_POLIZAS)
 
 
-
+    st.subheader("Descargando datos completos...", divider="rainbow")
     # Guardar los datos completos en un archivo Excel
     with st.expander("Descargar datos completos"):
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
