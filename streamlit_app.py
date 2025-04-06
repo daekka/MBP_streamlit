@@ -19,8 +19,9 @@ st.title("MBP EVOLUTION - Integración de datos")
 
 uploaded_file = st.file_uploader("Sube un archivo ZIP", type="zip")
 
-if uploaded_file is not None:
-    st.write("Leyendo archivos...")    
+if uploaded_file is not None: 
+    st.divider()
+    st.subheader("Leyendo archivos...", divider="rainbow")
     abrir_zip_generara_df_compañias(uploaded_file)
     leer_plantillas_tablas()
     crear_df_compañias_vacios()
@@ -41,7 +42,8 @@ if uploaded_file is not None:
         col3.metric(label="Fichero Recibos REALE", value=st.session_state.df_origen_compañias['df_reale_recibos'].shape[0], border = True) 
         col4.metric(label="Fichero Pólizas PRODUCCIONTOTAL", value= st.session_state.df_origen_compañias['df_produccion_total'].shape[0], border = True)  
 
-    st.write("Procesando datos OCCIDENT...")
+
+    st.subheader("Procesando datos OCCIDENT...", divider="red")
 
     procesar_OCCIDENT()
     with st.expander("Detalles de los clientes OCCIDENT"):

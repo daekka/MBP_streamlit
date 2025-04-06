@@ -23,9 +23,6 @@ def procesar_OCCIDENT():
         (st.session_state.df_origen_compañias['df_occident_recibos']['Situación del recibo'].str.strip().isin(['Cobrado', 'Pendiente']))
     ]
     
-    st.write("Datos de recibos después de filtrar:")
-    st.write(f"Número de filas: {len(st.session_state.df_origen_compañias['df_occident_recibos'])}")
-    
     fecha_orden = "Fecha emisión";
     prima_orden = "Prima total";
     st.session_state.df_origen_compañias['df_occident_recibos'] = st.session_state.df_origen_compañias['df_occident_recibos'].sort_values(by=[fecha_orden, prima_orden], ascending=[False, False])
