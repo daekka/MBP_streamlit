@@ -27,15 +27,14 @@ def procesar_OCCIDENT():
     prima_orden = "Prima total";
     st.session_state.df_origen_compañias['df_occident_recibos'] = st.session_state.df_origen_compañias['df_occident_recibos'].sort_values(by=[fecha_orden, prima_orden], ascending=[False, False])
     st.session_state.df_OCCIDENT['recibos'] = procesarRecibos(compañia, st.session_state.df_OCCIDENT['recibos'], st.session_state.df_origen_compañias['df_occident_recibos'])
-    #st.session_state.df_OCCIDENT['polizas'] = cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, st.session_state.df_OCCIDENT['polizas'], st.session_state.df_OCCIDENT['recibos'], "N_POLIZA", "ID_Poliza");
+    st.session_state.df_OCCIDENT['polizas'] = cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, st.session_state.df_OCCIDENT['polizas'], st.session_state.df_OCCIDENT['recibos'], "N_POLIZA", "ID_Poliza");
 
 
 
-import pandas as pd
-from datetime import datetime
-
-def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos, campo_id_poliza, campo_id_recibo):
+def cubrir_polizas_con_datos_recibos_OCCIDENT_old(compañia, df_polizas, df_recibos, campo_id_poliza, campo_id_recibo):
+    
     df_resultado = pd.DataFrame()  # Equivalente a df_plantilla_POLIZAS
+
     for i, poliza in df_polizas.iterrows():
         n_poliza = poliza[campo_id_poliza]
         if pd.isna(n_poliza):
@@ -43,6 +42,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
 
         recibos_poliza = df_recibos[df_recibos[campo_id_recibo].astype(str) == str(n_poliza)].copy()
         recibos_poliza = recibos_poliza[['P_Neta', 'F_Remesa', 'Tipo_recibo', 'Periodicidad']]
+        recibos_poliza = recibos_poliza.groupby('F_Remesa').agg({'P_Neta': 'sum', 'Tipo_recibo': 'first', 'Periodicidad': 'first'})
 
         if recibos_poliza.empty:
             prima = None
@@ -66,7 +66,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
                         datos_unicos[fecha_key]['prima_neta'] += float(row['P_Neta'])
 
             datos_normalizados = list(datos_unicos.values())
-
+            st.write(datos_normalizados)
             if len(datos_normalizados) == 1:
                 fecha_dato = datos_normalizados[0]['fecha_efecto']
                 fecha_actual = pd.Timestamp.now()
@@ -188,3 +188,112 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
         df_resultado = pd.concat([df_resultado, pd.DataFrame([nueva_fila])], ignore_index=True)
 
     return df_resultado
+
+
+
+def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos, campo_id_poliza, campo_id_recibo):
+    
+    df_resultado = pd.DataFrame()  # Equivalente a df_plantilla_POLIZAS
+
+    for i, poliza in df_polizas.iterrows():
+        n_poliza = poliza[campo_id_poliza]
+        if pd.isna(n_poliza):
+            continue
+
+        recibos_poliza = df_recibos[df_recibos[campo_id_recibo].astype(str) == str(n_poliza)].copy()
+        recibos_poliza = recibos_poliza[['P_Neta', 'F_Remesa', 'Tipo_recibo', 'Periodicidad']]
+        #recibos_poliza = recibos_poliza.groupby('F_Remesa').agg({'P_Neta': 'sum', 'Tipo_recibo': 'first', 'Periodicidad': 'first'})
+        
+        st.write(poliza['N_POLIZA'])
+        st.dataframe(recibos_poliza)
+        st.write(recibos_poliza.shape)
+        if recibos_poliza.empty:
+            prima = None
+            primaanterior = None
+            tipo_periodicidad = None
+            prima_leida_ultimo_recibo = None
+            periodo_leido_ultimo_recibo = None
+
+
+        if recibos_poliza.shape[0] == 1:
+            st.write("Único recibo")
+            fecha_dato = recibos_poliza['F_Remesa'].iloc[0]
+            fecha_actual = pd.Timestamp.now()
+            diff_meses = (fecha_actual - fecha_dato).days // 30
+
+            if diff_meses > 6:
+                tipo_periodicidad = "Posible: Anual"
+            elif diff_meses > 3:
+                tipo_periodicidad = "Posible: Anual / Semestral"
+            elif diff_meses > 2:
+                tipo_periodicidad = "Posible: Anual / Semestral / Bimensual / Trimestral"
+            elif diff_meses > 1:
+                tipo_periodicidad = "Posible: Anual / Semestral / Bimensual / Trimestral"
+            elif diff_meses >= 1:
+                tipo_periodicidad = "Posible: Anual / Semestral / Bimensual / Trimestral / Mensual"
+            else:
+                tipo_periodicidad = "indeterminado"
+            st.write(tipo_periodicidad)
+            prima = recibos_poliza['P_Neta'].iloc[0]
+            primaanterior = None
+            prima_leida_ultimo_recibo = prima
+            periodo_leido_ultimo_recibo = recibos_poliza['Periodicidad'].iloc[0]
+
+        if recibos_poliza.shape[0] > 1:
+            # Convertir el índice a una columna para poder trabajar con él
+            #recibos_poliza = recibos_poliza.reset_index()
+            #recibos_poliza['F_Remesa'] = pd.to_datetime(recibos_poliza['F_Remesa'])
+            
+            # Ordenamos por fecha
+            recibos_poliza = recibos_poliza.sort_values(by=['F_Remesa'])
+
+            # Calculamos la diferencia entre fechas
+            recibos_poliza['diff_dias'] = recibos_poliza['F_Remesa'].diff().dt.days
+
+            # Función para clasificar periodicidad según diferencia media
+            def detectar_periodicidad(media_dias):
+                if pd.isna(media_dias):
+                    return 'Desconocido'
+                if media_dias <= 40:
+                    return 'Mensual'
+                elif media_dias <= 75:
+                    return 'Bimensual'
+                elif media_dias <= 110:
+                    return 'Trimestral'
+                elif media_dias <= 200:
+                    return 'Semestral'
+                else:
+                    return 'Anual'
+
+            # Detectamos periodicidad para esta póliza
+            media_dias = recibos_poliza['diff_dias'].mean()
+            periodicidad_detectada = detectar_periodicidad(media_dias)
+            
+            # Añadimos la periodicidad detectada a cada fila
+            recibos_poliza['Periodicidad_detectada'] = periodicidad_detectada
+
+            # Agrupamos primas por período detectado
+            # Cada agrupación depende de cuántos recibos componen el periodo
+            periodo_map = {
+                'Mensual': 12,
+                'Bimensual': 6,
+                'Trimestral': 4,
+                'Semestral': 2,
+                'Anual': 1
+            }
+
+            # Creamos grupos para esta póliza
+            recibos_poliza['grupo'] = range(len(recibos_poliza))
+
+            # Sumar primas agrupando por bloques del periodo
+            recibos_poliza['bloque'] = recibos_poliza.apply(lambda row: row['grupo'] // periodo_map.get(periodicidad_detectada, 1), axis=1)
+
+            # Sumamos primas por grupo
+            agrupado = recibos_poliza.groupby(['Periodicidad_detectada', 'bloque'])['P_Neta'].sum().reset_index()
+
+            st.dataframe(agrupado)
+
+
+        
+
+
