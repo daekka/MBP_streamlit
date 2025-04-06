@@ -337,41 +337,6 @@ def procesar_polizas(
     return df_resultado
 
 
-def procesarRecibos_old(compania, df_plantilla_RECIBOS, df_origen_recibos):
-    df_resultado = df_plantilla_RECIBOS
-
-    for index, recibo in df_origen_recibos.iterrows():
-        # Crear un diccionario para almacenar los datos mapeados
-        datos_mapeados = {}
-                    
-        # Para cada columna en df_clientes_compania
-        for columna_destino in df_plantilla_RECIBOS.columns:
-            # Buscar el nombre equivalente en la plantilla
-            columna_origen = obtenerNombreColumnaConversion(
-                st.session_state.df_plantillas_tablas['recibos'], 
-                compania, 
-                columna_destino
-            )
-
-            # Si se encuentra un nombre equivalente y la columna existe en cliente_data, agregar el valor al diccionario
-            if columna_origen is not None and not pd.isna(columna_origen) and columna_origen not in datos_mapeados:
-                if columna_destino == 'ID_Poliza':
-                    datos_mapeados[columna_destino] = str(recibo[columna_origen])
-                else:
-                    datos_mapeados[columna_destino] = recibo[columna_origen]
-            else:
-                datos_mapeados[columna_destino] = None
-        
-        datos_mapeados['GRUPO_ASEGURADOR'] = compania
-
-        # Crear un DataFrame temporal con los datos mapeados
-        df_temp = pd.DataFrame([datos_mapeados]).dropna(how='all')
-        
-        # Agregar los datos mapeados al DataFrame resultado
-        df_resultado = pd.concat([df_resultado, df_temp], ignore_index=True)
-
-    return df_resultado
-
 
 def procesarRecibos(compania, df_plantilla_RECIBOS, df_origen_recibos):
     # Crear el mapeo de columnas una sola vez
