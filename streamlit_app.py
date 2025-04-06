@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios, rellenar_datos_faltantes_con_PT, to_excel
+from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios, rellenar_datos_faltantes_con_PT, to_excel, formatear_campos_salidas
 from scripts.occident import procesar_OCCIDENT
 from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
@@ -84,10 +84,12 @@ if uploaded_file is not None:
         st.metric(label="Total de polizas COMPLETAS", value=st.session_state.df_COMPLETO_POLIZAS.shape[0], border = True)
         st.dataframe(st.session_state.df_COMPLETO_POLIZAS)
 
+    st.session_state.df_COMPLETO_CLIENTES = formatear_campos_salidas(st.session_state.df_COMPLETO_CLIENTES)
+    st.session_state.df_COMPLETO_POLIZAS = formatear_campos_salidas(st.session_state.df_COMPLETO_POLIZAS)
 
     # Guardar los datos completos en un archivo Excel
     with st.expander("Descargar datos completos"):
-        fecha_actual = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         st.download_button(label="Descargar datos completos de clientes", data=to_excel(st.session_state.df_COMPLETO_CLIENTES), file_name=f"datos_completos_clientes_{fecha_actual}.xlsx")
         st.download_button(label="Descargar datos completos de polizas", data=to_excel(st.session_state.df_COMPLETO_POLIZAS), file_name=f"datos_completos_polizas_{fecha_actual}.xlsx")
         
