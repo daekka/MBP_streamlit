@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios
+from scripts.occident import procesar_OCCIDENT
+
 
 ## Inicializar una variable si no existe
 if 'df_origen_compañias' not in st.session_state:
@@ -18,7 +20,7 @@ st.title("MBP EVOLUTION - Integración de datos")
 uploaded_file = st.file_uploader("Sube un archivo ZIP", type="zip")
 
 if uploaded_file is not None:
-    st.write("Cargando archivos...")    
+    st.write("Leyendo archivos...")    
     abrir_zip_generara_df_compañias(uploaded_file)
     leer_plantillas_tablas()
     crear_df_compañias_vacios()
@@ -38,3 +40,11 @@ if uploaded_file is not None:
         col3.metric(label="Fichero Clientes REALE", value=st.session_state.df_origen_compañias['df_reale_clientes'].shape[0], border = True) 
         col3.metric(label="Fichero Recibos REALE", value=st.session_state.df_origen_compañias['df_reale_recibos'].shape[0], border = True) 
         col4.metric(label="Fichero Pólizas PRODUCCIONTOTAL", value= st.session_state.df_origen_compañias['df_produccion_total'].shape[0], border = True)  
+
+    st.write("Procesando datos OCCIDENT...")
+
+    procesar_OCCIDENT()
+    st.metric(label="Clientes OCCIDENT", value=st.session_state.df_OCCIDENT['clientes'].shape[0], border = True)
+    st.dataframe(st.session_state.df_OCCIDENT['clientes'])
+    st.metric(label="Polizas OCCIDENT", value=st.session_state.df_OCCIDENT['polizas'].shape[0], border = True)
+    st.dataframe(st.session_state.df_OCCIDENT['polizas'])
