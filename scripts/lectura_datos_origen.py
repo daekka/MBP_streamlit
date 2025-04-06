@@ -235,6 +235,73 @@ def procesar_clientes_desde_polizas(
     columna_cliente_poliza_origen,
     columna_cliente_clientes_origen,
 ):
+    # Obtener clientes únicos con ID válido desde las pólizas
+    clientes_unicos = (
+        df_polizas_compania[df_polizas_compania[columna_cliente_poliza_origen].notna()]
+        [columna_cliente_poliza_origen]
+        .drop_duplicates()
+    )
+
+    # Crear un mapeo de columnas una sola vez
+    mapa_columnas = {
+        columna_destino: obtenerNombreColumnaConversion(
+            st.session_state.df_plantillas_tablas['clientes'],
+            compania,
+            columna_destino
+        )
+        for columna_destino in df_plantilla.columns
+    }
+
+    # Crear diccionario para búsqueda rápida de clientes por ID
+    dict_clientes = (
+        df_clientes_compania
+        .drop_duplicates(subset=columna_cliente_clientes_origen)
+        .set_index(columna_cliente_clientes_origen)
+        .to_dict(orient='index')
+    )
+
+    registros = []
+
+    for id_cliente in clientes_unicos:
+        cliente_info = dict_clientes.get(id_cliente)
+
+        if cliente_info:
+            datos_mapeados = {}
+            for columna_destino, columna_origen in mapa_columnas.items():
+                if columna_origen and columna_origen in cliente_info:
+                    valor = cliente_info[columna_origen]
+                    if isinstance(valor, str):
+                        datos_mapeados[columna_destino] = valor.replace('\r\n', ' ')
+                    else:
+                        datos_mapeados[columna_destino] = valor
+                else:
+                    datos_mapeados[columna_destino] = None
+
+            registros.append(datos_mapeados)
+        else:
+            mensaje_advertencia = (
+                f"ADVERTENCIA: Hay una póliza en vigor a nombre de '{id_cliente}' "
+                "que no se encontró en los datos de clientes."
+            )
+            st.write(mensaje_advertencia)
+            print(mensaje_advertencia)
+
+    # Crear el DataFrame final
+    df_resultado = pd.DataFrame(registros).dropna(how='all')
+    df_resultado['GRUPO_ASEGURADOR'] = compania
+
+    return df_resultado
+
+
+
+def procesar_clientes_desde_polizas_old(
+    compania,
+    df_polizas_compania,
+    df_clientes_compania,
+    df_plantilla,
+    columna_cliente_poliza_origen,
+    columna_cliente_clientes_origen,
+):
     # Obtener el nombre de la columna de conversión
     clientes = df_polizas_compania[df_polizas_compania[columna_cliente_poliza_origen].notna()].drop_duplicates(subset=columna_cliente_poliza_origen)
 
@@ -285,6 +352,7 @@ def procesar_clientes_desde_polizas(
 
     df_resultado['GRUPO_ASEGURADOR'] = compania
     return df_resultado
+
 
 def procesar_polizas(
     compania,
