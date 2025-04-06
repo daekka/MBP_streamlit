@@ -207,16 +207,16 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
         st.write(poliza['N_POLIZA'])
         st.dataframe(recibos_poliza)
         st.write(recibos_poliza.shape)
+
         if recibos_poliza.empty:
-            prima = None
-            primaanterior = None
+            prima_calculada = None
+            primaanterior_calculada = None
             tipo_periodicidad = None
-            prima_leida_ultimo_recibo = None
-            periodo_leido_ultimo_recibo = None
+            periodo_calculada = None
 
 
         if recibos_poliza.shape[0] == 1:
-            st.write("Único recibo")
+            #st.write("Único recibo")
             fecha_dato = recibos_poliza['F_Remesa'].iloc[0]
             fecha_actual = pd.Timestamp.now()
             diff_meses = (fecha_actual - fecha_dato).days // 30
@@ -233,11 +233,10 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
                 tipo_periodicidad = "Posible: Anual / Semestral / Bimensual / Trimestral / Mensual"
             else:
                 tipo_periodicidad = "indeterminado"
-            st.write(tipo_periodicidad)
-            prima = recibos_poliza['P_Neta'].iloc[0]
-            primaanterior = None
-            prima_leida_ultimo_recibo = prima
-            periodo_leido_ultimo_recibo = recibos_poliza['Periodicidad'].iloc[0]
+            #st.write(tipo_periodicidad)
+            prima_calculada = recibos_poliza['P_Neta'].iloc[0]
+            primaanterior_calculada = None
+            periodo_calculada = tipo_periodicidad
 
         if recibos_poliza.shape[0] > 1:
             # Convertir el índice a una columna para poder trabajar con él
@@ -288,10 +287,63 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
             # Sumar primas agrupando por bloques del periodo
             recibos_poliza['bloque'] = recibos_poliza.apply(lambda row: row['grupo'] // periodo_map.get(periodicidad_detectada, 1), axis=1)
 
+            # Contamos cuántos recibos hay en cada bloque
+            conteo_por_bloque = recibos_poliza.groupby('bloque').size().reset_index(name='recibos_en_bloque')
+            
+            # Determinamos si cada bloque está completo
+            recibos_esperados = periodo_map.get(periodicidad_detectada, 1)
+            conteo_por_bloque['bloque_completo'] = conteo_por_bloque['recibos_en_bloque'] == recibos_esperados
+            
             # Sumamos primas por grupo
             agrupado = recibos_poliza.groupby(['Periodicidad_detectada', 'bloque'])['P_Neta'].sum().reset_index()
+            
+            # Añadimos la información de bloques completos
+            agrupado = agrupado.merge(conteo_por_bloque[['bloque', 'bloque_completo', 'recibos_en_bloque']], on='bloque')
+            
+            # Añadimos una columna que indique si el bloque está completo
+            agrupado['estado_bloque'] = agrupado.apply(
+                lambda row: f"Completo ({row['recibos_en_bloque']}/{recibos_esperados})" if row['bloque_completo'] 
+                else f"Incompleto ({row['recibos_en_bloque']}/{recibos_esperados})", 
+                axis=1
+            )
 
-            st.dataframe(agrupado)
+            ultima_prima_completo = agrupado[agrupado['bloque_completo'] == True]['P_Neta'].iloc[-1]
+            prima_calculada = ultima_prima_completo if not pd.isna(ultima_prima_completo) else 0
+            primaanterior_calculada = agrupado[agrupado['bloque_completo'] == True]['P_Neta'].iloc[-2] if len(agrupado[agrupado['bloque_completo'] == True]) > 1 else None
+            periodo_calculada = agrupado[agrupado['bloque_completo'] == True]['Periodicidad_detectada'].iloc[-1]
+
+
+
+        pneta_ultimo_recibo = recibos_poliza['P_Neta'].iloc[-1]
+        periodicidad_ultimo_recibo = recibos_poliza['Periodicidad'].iloc[-1]
+        if periodicidad_ultimo_recibo == 'Anual':
+            pneta_calculada_ultimo_recibo = pneta_ultimo_recibo * 1
+        elif periodicidad_ultimo_recibo == 'Semestral':
+            pneta_calculada_ultimo_recibo = pneta_ultimo_recibo * 2
+        elif periodicidad_ultimo_recibo == 'Trimestral':
+            pneta_calculada_ultimo_recibo = pneta_ultimo_recibo * 4
+        elif periodicidad_ultimo_recibo == 'Bimensual':
+            pneta_calculada_ultimo_recibo = pneta_ultimo_recibo * 6
+        elif periodicidad_ultimo_recibo == 'Mensual':
+            pneta_calculada_ultimo_recibo = pneta_ultimo_recibo * 12
+        else:
+            pneta_calculada_ultimo_recibo = pneta_ultimo_recibo
+        
+        df_polizas.loc[i, 'PRIMA_NETA'] = pneta_calculada_ultimo_recibo
+        df_polizas.loc[i, 'IMPORTE_ANO_ANTERIOR'] = primaanterior_calculada if prima_calculada == pneta_calculada_ultimo_recibo else prima_calculada
+
+        if pneta_calculada_ultimo_recibo == prima_calculada:
+            df_polizas.loc[i, 'F_PAGO'] = periodicidad_ultimo_recibo
+        else:
+            if periodicidad_ultimo_recibo != periodo_calculada:
+                df_polizas.loc[i, 'F_PAGO'] = f"¡Leída: {periodicidad_ultimo_recibo}, Calculada: {periodo_calculada}!"
+            else:
+                df_polizas.loc[i, 'F_PAGO'] = periodicidad_ultimo_recibo
+
+
+    return df_polizas
+
+    
 
 
         
