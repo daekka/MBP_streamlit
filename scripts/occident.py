@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from scripts.lectura_datos_origen import procesar_clientes_desde_polizas, procesar_polizas, procesarRecibos
+import datetime
 
 def procesar_OCCIDENT():
     # Aplicar filtros
@@ -202,11 +203,8 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
 
         recibos_poliza = df_recibos[df_recibos[campo_id_recibo].astype(str) == str(n_poliza)].copy()
         recibos_poliza = recibos_poliza[['P_Neta', 'F_Remesa', 'Tipo_recibo', 'Periodicidad']]
+        #recibos_poliza = recibos_poliza.groupby('F_Remesa').agg({'P_Neta': 'sum'}).reset_index()
         #recibos_poliza = recibos_poliza.groupby('F_Remesa').agg({'P_Neta': 'sum', 'Tipo_recibo': 'first', 'Periodicidad': 'first'})
-        
-        st.write(poliza['N_POLIZA'])
-        st.dataframe(recibos_poliza)
-        st.write(recibos_poliza.shape)
 
         if recibos_poliza.empty:
             prima_calculada = None
@@ -340,6 +338,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
             else:
                 df_polizas.loc[i, 'F_PAGO'] = periodicidad_ultimo_recibo
 
+        df_polizas.loc[i, 'M_RENOVACION'] = poliza['F_RENOVACION'].month if isinstance(poliza['F_RENOVACION'], datetime.date) else None
 
     return df_polizas
 

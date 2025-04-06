@@ -51,12 +51,14 @@ def abrir_zip_generara_df_compañias(uploaded_file):
         # Generar el dataframe de COSNOR
         procesar_compañias(tmpdir)
 
+
 # Función para encontrar la carpeta raíz de una compañía
 def encontrar_carpeta_compania(nombre_compania, tmpdir):
     for root, dirs, files in os.walk(tmpdir):
         if os.path.basename(root).upper() == nombre_compania.upper():
             return root
     return None
+
 
 # Función para cargar el Excel más reciente de una subcarpeta
 def cargar_excel_mas_reciente(carpeta_raiz, nombre_subcarpeta, compania):
@@ -96,6 +98,7 @@ def cargar_excel_mas_reciente(carpeta_raiz, nombre_subcarpeta, compania):
             
             return df, archivo_mas_reciente
     return None, None
+
 
 # Función para cargar el archivo más reciente de PRODUCCIONTOTAL
 def cargar_produccion_total(tmpdir):
@@ -138,7 +141,7 @@ def cargar_produccion_total(tmpdir):
 def to_excel(df):
     output = BytesIO()
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(writer, index=False, sheet_name='Sheet1')
+    df.to_excel(writer, index=False, sheet_name='Sheet1', date_format='dd/mm//yyyy')
     workbook = writer.book
     worksheet = writer.sheets['Sheet1']
     format1 = workbook.add_format({'num_format': '0.00'}) 
@@ -183,14 +186,6 @@ def procesar_compañias(tmpdir):
         st.session_state.df_origen_compañias["df_produccion_total"] = pd.DataFrame()
 
 
-def crear_df_vacio_desde_plantilla(df_plantilla):
-    # Extraer los valores de la columna 'Columna' (ignorando los vacíos o nulos)
-    columnas = df_plantilla['Columna'].dropna().tolist()
-    # Crear un DataFrame vacío con esas columnas
-    df_vacio = pd.DataFrame(columns=columnas)
-    return df_vacio
-
-
 def leer_plantillas_tablas():
     st.session_state.df_plantillas_tablas['clientes'] = pd.read_excel("tablas_origen\\tablas_conversion_clientes.xlsx")
     st.session_state.df_plantillas_tablas['polizas'] = pd.read_excel("tablas_origen\\tablas_conversion_polizas.xlsx")
@@ -209,7 +204,9 @@ def crear_df_compañias_vacios():
     st.session_state.df_OCCIDENT['clientes'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['clientes'])
     st.session_state.df_OCCIDENT['polizas'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['polizas'])
     st.session_state.df_OCCIDENT['recibos'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['recibos'])
-
+    
+    st.session_state.df_PRODUCCIONTOTAL['clientes'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['clientes'])
+    st.session_state.df_PRODUCCIONTOTAL['polizas'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['polizas'])
 
 def obtenerNombreColumnaConversion(plantilla, nombre_compania, nombre_campo):
     """
@@ -296,7 +293,6 @@ def procesar_clientes_desde_polizas(
     df_resultado['GRUPO_ASEGURADOR'] = compania
 
     return df_resultado
-
 
 
 def procesar_polizas(
@@ -397,3 +393,47 @@ def procesarRecibos(compania, df_plantilla_RECIBOS, df_origen_recibos):
     df_resultado = pd.concat([df_plantilla_RECIBOS, df_mapeado], ignore_index=True)
 
     return df_resultado
+
+
+
+def rellenar_datos_faltantes_con_PT(df_base, df_complemento, columna_clave):
+    # Limpiar nombres de columnas eliminando espacios extra
+    df_base.columns = df_base.columns.str.strip()
+    df_complemento.columns = df_complemento.columns.str.strip()
+
+    # Verificar si la columna clave existe en ambos DataFrames
+    if columna_clave not in df_base.columns or columna_clave not in df_complemento.columns:
+        st.error(f"La columna {columna_clave} no existe en uno o ambos DataFrames")
+        st.write("Columnas disponibles en df_base:", df_base.columns.tolist())
+        st.write("Columnas disponibles en df_complemento:", df_complemento.columns.tolist())
+        return df_base
+
+    # Eliminar duplicados en df_complemento, manteniendo el último registro para cada DNI
+    df_complemento_unicos = df_complemento.drop_duplicates(subset=columna_clave, keep='last')
+
+    try:
+        # Crear diccionario de referencia desde df_complemento
+        complemento_dict = df_complemento_unicos.set_index(columna_clave).to_dict(orient='index')
+        
+        def completar_fila(fila):
+            try:
+                clave = fila[columna_clave]
+                datos_referencia = complemento_dict.get(clave, {})
+                
+                for columna in df_base.columns:
+                    valor = fila[columna]
+                    if pd.isna(valor) or valor == "" or valor == "No informada":
+                        nuevo_valor = datos_referencia.get(columna)
+                        if nuevo_valor is not None:
+                            fila[columna] = nuevo_valor
+                return fila
+            except Exception as e:
+                st.error(f"Error procesando fila: {str(e)}")
+                return fila
+
+        df_resultado = df_base.apply(completar_fila, axis=1)
+        return df_resultado
+    
+    except Exception as e:
+        st.error(f"Error al procesar los datos: {str(e)}")
+        return df_base
