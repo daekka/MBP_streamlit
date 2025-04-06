@@ -286,9 +286,66 @@ def procesar_clientes_desde_polizas(
     df_resultado['GRUPO_ASEGURADOR'] = compania
     return df_resultado
 
-
-
 def procesar_polizas(
+    compania,
+    dfPolizasCompania,
+    dfClientesCompania,
+    dfPlantilla,
+    columnaClientePolizaOrigen,
+    columnaClienteClientesOrigen,
+    columnaIDPolizas
+):
+    # Crear mapeo de columnas una sola vez
+    mapa_columnas = {
+        columna_destino: obtenerNombreColumnaConversion(
+            st.session_state.df_plantillas_tablas['polizas'], 
+            compania, 
+            columna_destino
+        )
+        for columna_destino in dfPlantilla.columns
+    }
+
+    # Crear diccionario rápido para buscar cliente por ID
+    dict_clientes = (
+        dfClientesCompania
+        .drop_duplicates(subset=columnaClienteClientesOrigen)
+        .set_index(columnaClienteClientesOrigen)
+        .to_dict(orient='index')
+    )
+
+    registros = []
+
+    for _, poliza in dfPolizasCompania.iterrows():
+        datos_mapeados = {}
+
+        for columna_destino, columna_origen in mapa_columnas.items():
+            if columna_origen and columna_origen in poliza:
+                valor = poliza[columna_origen]
+                if columna_destino == 'N_POLIZA':
+                    datos_mapeados[columna_destino] = str(valor)
+                else:
+                    datos_mapeados[columna_destino] = valor
+            else:
+                datos_mapeados[columna_destino] = None
+
+        # Enlazar cliente
+        id_cliente = poliza[columnaClientePolizaOrigen]
+        cliente_info = dict_clientes.get(id_cliente)
+
+        if cliente_info:
+            datos_mapeados['ID_DNI'] = cliente_info.get(columnaIDPolizas)
+            datos_mapeados['CLIENTE'] = cliente_info.get(columnaClienteClientesOrigen)
+
+        datos_mapeados['GRUPO_ASEGURADOR'] = compania
+        registros.append(datos_mapeados)
+
+    # Crear DataFrame resultado
+    df_resultado = pd.concat([dfPlantilla, pd.DataFrame(registros)], ignore_index=True)
+
+    return df_resultado
+
+
+def procesar_polizas_old(
     compania,
     dfPolizasCompania,
     dfClientesCompania,
