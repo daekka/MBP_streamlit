@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from scripts.lectura_datos_origen import procesar_clientes_desde_polizas, procesar_polizas, procesarRecibos
 import datetime
-
+import re
 def procesar_OCCIDENT():
     # Aplicar filtros
     st.session_state.df_origen_compañias['df_occident_polizas'] = st.session_state.df_origen_compañias['df_occident_polizas'][
@@ -29,7 +29,8 @@ def procesar_OCCIDENT():
     st.session_state.df_origen_compañias['df_occident_recibos'] = st.session_state.df_origen_compañias['df_occident_recibos'].sort_values(by=[fecha_orden, prima_orden], ascending=[False, False])
     st.session_state.df_OCCIDENT['recibos'] = procesarRecibos(compañia, st.session_state.df_OCCIDENT['recibos'], st.session_state.df_origen_compañias['df_occident_recibos'])
     st.session_state.df_OCCIDENT['polizas'] = cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, st.session_state.df_OCCIDENT['polizas'], st.session_state.df_OCCIDENT['recibos'], "N_POLIZA", "ID_Poliza");
-
+    # Limpiar y formatear el domicilio de los clientes
+    st.session_state.df_OCCIDENT['clientes']["DOMICILIO"] = st.session_state.df_OCCIDENT['clientes'].apply(limpiar_y_formatear_domicilio_OCCIDENT, axis=1)
 
 
 def cubrir_polizas_con_datos_recibos_OCCIDENT_old(compañia, df_polizas, df_recibos, campo_id_poliza, campo_id_recibo):
@@ -343,6 +344,33 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
     return df_polizas
 
     
+def limpiar_y_formatear_domicilio_OCCIDENT(row):
+    domicilio = row['DOMICILIO']
+    cp = str(row['C.P.'])
+    localidad = row['LOCALIDAD'].upper()
+    provincia = row['PROVINCIA'].upper()
+
+    # Formatear piso y puerta
+    match = re.search(r"piso:([^\s,]+)\s*puerta:([^\s,]*)", domicilio, flags=re.IGNORECASE)
+    piso_puerta = ""
+    if match:
+        piso = match.group(1).strip()
+        puerta = match.group(2).strip()
+        piso_puerta = f"Piso {piso}"
+        if puerta:
+            piso_puerta += f", Puerta {puerta}"
+        domicilio = re.sub(r"piso:[^\s,]+\s*puerta:[^\s,]*", piso_puerta, domicilio, flags=re.IGNORECASE)
+
+    # Eliminar C.P., localidad y provincia
+    domicilio = re.sub(rf",?\s*{cp}", "", domicilio)
+    domicilio = re.sub(rf",?\s*{re.escape(localidad)}", "", domicilio, flags=re.IGNORECASE)
+    domicilio = re.sub(rf",?\s*{re.escape(provincia)}", "", domicilio, flags=re.IGNORECASE)
+
+    # Limpiar comas y espacios
+    domicilio = re.sub(r",\s*,", ",", domicilio)
+    domicilio = domicilio.strip(", ").strip()
+
+    return domicilio
 
 
         

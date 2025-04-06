@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios, rellenar_datos_faltantes_con_PT, to_excel, formatear_campos_salidas
+from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios, rellenar_datos_faltantes_con_PT, to_excel
 from scripts.occident import procesar_OCCIDENT
 from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
@@ -63,6 +63,7 @@ if uploaded_file is not None:
 
     st.subheader("Procesando datos OCCIDENT...", divider="red")
     procesar_OCCIDENT()
+    
     with st.expander("Detalles de los clientes OCCIDENT"):
         st.metric(label="Total de clientes OCCIDENT", value=st.session_state.df_OCCIDENT['clientes'].shape[0], border = True)
         st.dataframe(st.session_state.df_OCCIDENT['clientes'])
@@ -84,8 +85,7 @@ if uploaded_file is not None:
         st.metric(label="Total de polizas COMPLETAS", value=st.session_state.df_COMPLETO_POLIZAS.shape[0], border = True)
         st.dataframe(st.session_state.df_COMPLETO_POLIZAS)
 
-    st.session_state.df_COMPLETO_CLIENTES = formatear_campos_salidas(st.session_state.df_COMPLETO_CLIENTES)
-    st.session_state.df_COMPLETO_POLIZAS = formatear_campos_salidas(st.session_state.df_COMPLETO_POLIZAS)
+
 
     # Guardar los datos completos en un archivo Excel
     with st.expander("Descargar datos completos"):

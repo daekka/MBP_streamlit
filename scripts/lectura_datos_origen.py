@@ -6,7 +6,8 @@ import pandas as pd
 from pyxlsb import open_workbook as open_xlsb
 import streamlit as st
 import warnings
-import re
+
+
 # Suprimir la advertencia específica de validación de datos de openpyxl
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
@@ -439,32 +440,3 @@ def rellenar_datos_faltantes_con_PT(df_base, df_complemento, columna_clave):
         return df_base
     
 
-def formatear_campos_salidas(df):
-    columnas_a_formatear = ['LOCALIDAD', 'PROVINCIA']
-    for columna in columnas_a_formatear:
-        if columna in df.columns:
-            df[columna] = df[columna].str.upper()
-            
-    if 'DOMICILIO' in df.columns:
-        df["DOMICILIO"] = df.apply(limpiar_domicilio, axis=1)
-
-
-    return df
-
-
-def limpiar_domicilio(row):
-    domicilio = row['DOMICILIO']
-    cp = str(row['C.P.'])
-    localidad = row['LOCALIDAD'].upper()
-    provincia = row['PROVINCIA'].upper()
-
-    # Elimina C.P., localidad y provincia, con posibles comas o espacios alrededor
-    domicilio = re.sub(rf",?\s*{cp}", "", domicilio)
-    domicilio = re.sub(rf",?\s*{re.escape(localidad)}", "", domicilio, flags=re.IGNORECASE)
-    domicilio = re.sub(rf",?\s*{re.escape(provincia)}", "", domicilio, flags=re.IGNORECASE)
-
-    # Elimina comas repetidas o finales
-    domicilio = re.sub(r",\s*,", ",", domicilio)
-    domicilio = domicilio.rstrip(", ").strip()
-
-    return domicilio
