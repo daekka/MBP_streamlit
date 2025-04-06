@@ -44,7 +44,12 @@ if uploaded_file is not None:
     st.write("Procesando datos OCCIDENT...")
 
     procesar_OCCIDENT()
-    st.metric(label="Clientes OCCIDENT", value=st.session_state.df_OCCIDENT['clientes'].shape[0], border = True)
-    st.dataframe(st.session_state.df_OCCIDENT['clientes'])
-    st.metric(label="Polizas OCCIDENT", value=st.session_state.df_OCCIDENT['polizas'].shape[0], border = True)
-    st.dataframe(st.session_state.df_OCCIDENT['polizas'])
+    with st.expander("Detalles de los clientes OCCIDENT"):
+        st.metric(label="Total de clientes OCCIDENT", value=st.session_state.df_OCCIDENT['clientes'].shape[0], border = True)
+        st.dataframe(st.session_state.df_OCCIDENT['clientes'])
+    with st.expander("Detalles de las polizas OCCIDENT"):
+        st.metric(label="Total de polizas OCCIDENT", value=st.session_state.df_OCCIDENT['polizas'].shape[0], border = True)
+        st.dataframe(st.session_state.df_OCCIDENT['polizas'])
+    with st.expander("Detalles de los recibos OCCIDENT"):
+        st.metric(label="Total de recibos OCCIDENT", value=st.session_state.df_OCCIDENT['recibos'].shape[0], border = True)
+        st.dataframe(st.session_state.df_OCCIDENT['recibos'])

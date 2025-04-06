@@ -322,3 +322,29 @@ def procesar_polizas(
     return df_resultado
 
 
+def procesarRecibos(compania, df_plantilla_RECIBOS, df_origen_recibos):
+    df_resultado = df_plantilla_RECIBOS
+
+    for index, recibo in df_origen_recibos.iterrows():
+        # Crear un diccionario para almacenar los datos mapeados
+        datos_mapeados = {}
+                    
+        # Para cada columna en df_clientes_compania
+        for columna_destino in df_plantilla_RECIBOS.columns:
+            # Buscar el nombre equivalente en la plantilla
+            columna_origen = obtenerNombreColumnaConversion(
+                st.session_state.df_plantillas_tablas['polizas'], 
+                compania, 
+                columna_destino
+            )
+
+            # Si se encuentra un nombre equivalente y la columna existe en cliente_data, agregar el valor al diccionario
+            if columna_origen is not None and not pd.isna(columna_origen) and columna_origen not in datos_mapeados:
+                datos_mapeados[columna_destino] = recibo[columna_origen]
+        
+        datos_mapeados['GRUPO_ASEGURADOR'] = compania
+
+        # Agregar los datos mapeados al DataFrame resultado
+        df_resultado = pd.concat([df_resultado, pd.DataFrame([datos_mapeados])], ignore_index=True)
+
+    return df_resultado
