@@ -196,6 +196,7 @@ def leer_plantillas_tablas():
     st.session_state.df_plantillas_tablas['polizas'] = pd.read_excel("tablas_origen\\tablas_conversion_polizas.xlsx")
     st.session_state.df_plantillas_tablas['recibos'] = pd.read_excel("tablas_origen\\tablas_conversion_recibos.xlsx")
 
+
 def crear_df_vacio_desde_plantilla(df_original):
     # Extraer los valores de la columna 'Columna' (ignorando los vacíos o nulos)
     columnas = df_original['Columna'].dropna().tolist()
@@ -203,10 +204,12 @@ def crear_df_vacio_desde_plantilla(df_original):
     df_vacio = pd.DataFrame(columns=columnas)
     return df_vacio
 
+
 def crear_df_compañias_vacios():
     st.session_state.df_OCCIDENT['clientes'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['clientes'])
     st.session_state.df_OCCIDENT['polizas'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['polizas'])
     st.session_state.df_OCCIDENT['recibos'] = crear_df_vacio_desde_plantilla(st.session_state.df_plantillas_tablas['recibos'])
+
 
 def obtenerNombreColumnaConversion(plantilla, nombre_compania, nombre_campo):
     """
@@ -227,6 +230,7 @@ def obtenerNombreColumnaConversion(plantilla, nombre_compania, nombre_campo):
     else:
         return None
     
+
 def procesar_clientes_desde_polizas(
     compania,
     df_polizas_compania,
@@ -251,12 +255,12 @@ def procesar_clientes_desde_polizas(
         )
         for columna_destino in df_plantilla.columns
     }
-
+  
     # Crear diccionario para búsqueda rápida de clientes por ID
     dict_clientes = (
         df_clientes_compania
         .drop_duplicates(subset=columna_cliente_clientes_origen)
-        .set_index(columna_cliente_clientes_origen)
+        .set_index(columna_cliente_clientes_origen, drop=False)
         .to_dict(orient='index')
     )
 
@@ -270,6 +274,7 @@ def procesar_clientes_desde_polizas(
             for columna_destino, columna_origen in mapa_columnas.items():
                 if columna_origen and columna_origen in cliente_info:
                     valor = cliente_info[columna_origen]
+
                     if isinstance(valor, str):
                         datos_mapeados[columna_destino] = valor.replace('\r\n', ' ')
                     else:
@@ -292,66 +297,6 @@ def procesar_clientes_desde_polizas(
 
     return df_resultado
 
-
-
-def procesar_clientes_desde_polizas_old(
-    compania,
-    df_polizas_compania,
-    df_clientes_compania,
-    df_plantilla,
-    columna_cliente_poliza_origen,
-    columna_cliente_clientes_origen,
-):
-    # Obtener el nombre de la columna de conversión
-    clientes = df_polizas_compania[df_polizas_compania[columna_cliente_poliza_origen].notna()].drop_duplicates(subset=columna_cliente_poliza_origen)
-
-    # Crear un DataFrame vacío para almacenar los resultados
-    df_resultado = pd.DataFrame()
-    
-    for index, fila in clientes.iterrows():
-        # Obtener el identificador del cliente
-        id_cliente = fila[columna_cliente_poliza_origen]
-        
-        # Buscar el cliente en df_clientes_compania
-        cliente_encontrado = df_clientes_compania[df_clientes_compania[columna_cliente_clientes_origen] == id_cliente]
-
-        if not cliente_encontrado.empty:
-            # Obtener la primera fila del cliente encontrado
-            cliente_data = cliente_encontrado.iloc[0]
-
-            # Crear un diccionario para almacenar los datos mapeados
-            datos_mapeados = {}
-            
-            # Para cada columna en df_clientes_compania
-            for columna_destino in df_plantilla.columns:
-                # Buscar el nombre equivalente en la plantilla
-                columna_origen = obtenerNombreColumnaConversion(
-                    st.session_state.df_plantillas_tablas['clientes'], 
-                    compania, 
-                    columna_destino
-                )
-
-                # Si se encuentra un nombre equivalente y la columna existe en cliente_data, agregar el valor al diccionario
-                if columna_origen is not None and columna_origen in cliente_data.index:
-                    if isinstance(cliente_data[columna_origen], str):
-                        datos_mapeados[columna_destino] = cliente_data[columna_origen].replace('\r\n', ' ')
-                    else:
-                        datos_mapeados[columna_destino] = cliente_data[columna_origen]
-                else:
-                    datos_mapeados[columna_destino] = None
-            df_temp = pd.DataFrame([datos_mapeados]).dropna(how='all')
-            
-            # Agregar los datos mapeados al DataFrame resultado
-            df_resultado = pd.concat([df_resultado, df_temp], ignore_index=True)
-        else:
-            # Si no se encuentra el cliente, mostrar un mensaje de advertencia
-            nombre_cliente = fila[columna_cliente_poliza_origen]
-            mensaje_advertencia = f"ADVERTENCIA: Hay una póliza en vigor a nombre de '{nombre_cliente}' que no se encontró en los datos de clientes."
-            st.write(mensaje_advertencia)
-            print (mensaje_advertencia)
-
-    df_resultado['GRUPO_ASEGURADOR'] = compania
-    return df_resultado
 
 
 def procesar_polizas(
@@ -377,7 +322,7 @@ def procesar_polizas(
     dict_clientes = (
         dfClientesCompania
         .drop_duplicates(subset=columnaClienteClientesOrigen)
-        .set_index(columnaClienteClientesOrigen)
+        .set_index(columnaClienteClientesOrigen, drop=False)
         .to_dict(orient='index')
     )
 
@@ -409,55 +354,6 @@ def procesar_polizas(
 
     # Crear DataFrame resultado
     df_resultado = pd.concat([dfPlantilla, pd.DataFrame(registros)], ignore_index=True)
-
-    return df_resultado
-
-
-def procesar_polizas_old(
-    compania,
-    dfPolizasCompania,
-    dfClientesCompania,
-    dfPlantilla,
-    columnaClientePolizaOrigen,
-    columnaClienteClientesOrigen,
-    columnaIDPolizas
-):
-    df_resultado = dfPlantilla
-
-    for index, poliza in dfPolizasCompania.iterrows():
-        # Crear un diccionario para almacenar los datos mapeados
-        datos_mapeados = {}
-                    
-        # Para cada columna en df_clientes_compania
-        for columna_destino in dfPlantilla.columns:
-            # Buscar el nombre equivalente en la plantilla
-            columna_origen = obtenerNombreColumnaConversion(
-                st.session_state.df_plantillas_tablas['polizas'], 
-                compania, 
-                columna_destino
-            )
-
-            # Si se encuentra un nombre equivalente y la columna existe en cliente_data, agregar el valor al diccionario
-            if columna_origen is not None and not pd.isna(columna_origen) and columna_origen not in datos_mapeados:
-                if columna_destino == 'N_POLIZA':
-                    datos_mapeados[columna_destino] = str(poliza[columna_origen])
-                else:
-                    datos_mapeados[columna_destino] = poliza[columna_origen]
-            else:
-                datos_mapeados[columna_destino] = None
-
-        # Buscar en dfClientesCompania por columna_cliente_clientes_origen el campo columna_id_polizas
-        cliente_encontrado = dfClientesCompania[dfClientesCompania[columnaClienteClientesOrigen] == poliza[columnaClientePolizaOrigen]]
-
-        if not cliente_encontrado.empty:
-            datos_mapeados['ID_DNI'] = cliente_encontrado[columnaIDPolizas].values[0]
-            datos_mapeados['CLIENTE'] = cliente_encontrado[columnaClienteClientesOrigen].values[0]
-        
-        datos_mapeados['GRUPO_ASEGURADOR'] = compania
-
-        df_temp = pd.DataFrame([datos_mapeados]).dropna(how='all')
-        # Agregar los datos mapeados al DataFrame resultado
-        df_resultado = pd.concat([df_resultado, df_temp], ignore_index=True)
 
     return df_resultado
 
