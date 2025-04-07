@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda - MBP EVOLUTION</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .tree {
+            margin-left: 20px;
+            border-left: 1px solid #ccc;
+            padding-left: 20px;
+        }
+        .tree-item {
+            position: relative;
+            margin-bottom: 5px;
+        }
+        .tree-item::before {
+            content: "├─";
+            position: absolute;
+            left: -20px;
+        }
+        .tree-item:last-child::before {
+            content: "└─";
+        }
+        .folder {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .file {
+            color: #2ecc71;
+        }
+        .widget {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .widget-title {
+            font-weight: bold;
+            color: #3498db;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ayuda - MBP EVOLUTION</h1>
+    
+    <h2>Estructura del archivo ZIP</h2>
+    <p>El archivo ZIP debe contener la siguiente estructura de carpetas y archivos:</p>
+    
+    <div class="tree">
+        <div class="tree-item folder">datos_compañias.zip</div>
+        <div class="tree-item folder">OCCIDENT</div>
+        <div class="tree-item tree">
+            <div class="tree-item file">CLIENTES.xlsx</div>
+            <div class="tree-item file">POLIZAS.xlsx</div>
+            <div class="tree-item file">RECIBOS.xlsx</div>
+        </div>
+        <div class="tree-item folder">COSNOR</div>
+        <div class="tree-item tree">
+            <div class="tree-item file">CLIENTES.xlsx</div>
+            <div class="tree-item file">POLIZAS.xlsx</div>
+            <div class="tree-item file">RECIBOS.xlsx</div>
+        </div>
+        <div class="tree-item folder">REALE</div>
+        <div class="tree-item tree">
+            <div class="tree-item file">CLIENTES.xlsx</div>
+            <div class="tree-item file">POLIZAS.xlsx</div>
+            <div class="tree-item file">RECIBOS.xlsx</div>
+        </div>
+        <div class="tree-item folder">PRODUCCIONTOTAL</div>
+        <div class="tree-item tree">
+            <div class="tree-item file">Producción.xlsx</div>
+        </div>
+    </div>
+    
+    <h2>Widgets de la aplicación</h2>
+    
+    <div class="widget">
+        <div class="widget-title">¿Activar los logs?</div>
+        <p>Checkbox que permite activar o desactivar la visualización de logs detallados durante el procesamiento de datos. Cuando está activado, muestra información detallada sobre los datos procesados para cada compañía.</p>
+    </div>
+    
+    <div class="widget">
+        <div class="widget-title">Subir fichero ZIP con datos de compañías</div>
+        <p>Selector de archivos que permite subir el archivo ZIP con la estructura de carpetas y archivos descrita anteriormente. Este archivo es obligatorio para el funcionamiento de la aplicación.</p>
+    </div>
+    
+    <div class="widget">
+        <div class="widget-title">¿Quieres subir el fichero de trabajo para fusionar información?</div>
+        <p>Checkbox que permite activar o desactivar la opción de subir un archivo adicional para fusionar información. Cuando está activado, habilita el selector de archivos para el fichero de trabajo.</p>
+    </div>
+    
+    <div class="widget">
+        <div class="widget-title">Subir archivo de trabajo para fusionar información</div>
+        <p>Selector de archivos que permite subir un archivo Excel adicional para fusionar información con los datos procesados. Este archivo es opcional y solo está disponible cuando se activa la opción anterior.</p>
+    </div>
+    
+    <h2>Proceso de la aplicación</h2>
+    <ol>
+        <li>Sube el archivo ZIP con la estructura de carpetas y archivos descrita.</li>
+        <li>Opcionalmente, activa la opción para subir un archivo de trabajo adicional.</li>
+        <li>La aplicación procesará los datos de cada compañía (OCCIDENT, COSNOR, REALE, PRODUCCIONTOTAL).</li>
+        <li>Se rellenarán datos faltantes utilizando la información de PRODUCCIONTOTAL.</li>
+        <li>Si se proporcionó un archivo de trabajo adicional, se fusionará con los datos procesados.</li>
+        <li>Al finalizar, se generarán dos archivos Excel para descargar: uno con los datos completos de clientes y otro con los datos completos de pólizas.</li>
+    </ol>
+    
+    <h2>Notas importantes</h2>
+    <ul>
+        <li>Asegúrate de que los archivos Excel dentro del ZIP tengan la estructura correcta según la configuración de cada compañía.</li>
+        <li>Los archivos deben contener las columnas necesarias para el procesamiento correcto de los datos.</li>
+        <li>La aplicación utiliza PRODUCCIONTOTAL como fuente de datos complementaria para rellenar información faltante.</li>
+    </ul>
+</body>
+</html> 
