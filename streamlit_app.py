@@ -132,7 +132,7 @@ if uploaded_file_1 is not None:
         if uploaded_file_2 is not None:
             st.session_state.df_COMPLETO_POLIZAS = rellenar_datos_faltantes_con_PT(st.session_state.df_COMPLETO_POLIZAS, st.session_state.df_fusion, 'N_POLIZA')
 
-        
+        st.balloons()
         
         st.subheader("Descargando datos completos...", divider="rainbow")
         # Guardar los datos completos en un archivo Excel
