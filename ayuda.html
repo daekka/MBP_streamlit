@@ -179,6 +179,8 @@
         
         <h3>Configuración</h3>
         <p>El checkbox "¿Activar los logs?" permite activar o desactivar la visualización de logs detallados durante el procesamiento de datos. Cuando está activado, muestra información detallada sobre los datos procesados para cada compañía.</p>
+        
+        <p>El checkbox "¿Quieres subir el fichero de trabajo para fusionar información?" permite activar o desactivar la opción de subir un archivo adicional para fusionar información. Cuando está activado, habilita el selector de archivos para el fichero de trabajo.</p>
     </div>
     
     <h2>Widgets de la aplicación</h2>
@@ -189,19 +191,14 @@
     </div>
     
     <div class="widget">
-        <div class="widget-title">¿Quieres subir el fichero de trabajo para fusionar información?</div>
-        <p>Checkbox que permite activar o desactivar la opción de subir un archivo adicional para fusionar información. Cuando está activado, habilita el selector de archivos para el fichero de trabajo.</p>
-    </div>
-    
-    <div class="widget">
         <div class="widget-title">Subir archivo de trabajo para fusionar información</div>
-        <p>Selector de archivos que permite subir un archivo Excel adicional para fusionar información con los datos procesados. Este archivo es opcional y solo está disponible cuando se activa la opción anterior.</p>
+        <p>Selector de archivos que permite subir un archivo Excel adicional para fusionar información con los datos procesados. Este archivo es opcional y solo está disponible cuando se activa la opción correspondiente en el menú lateral.</p>
     </div>
     
     <h2>Proceso de la aplicación</h2>
     <ol>
         <li>Sube el archivo ZIP con la estructura de carpetas y archivos descrita.</li>
-        <li>Opcionalmente, activa la opción para subir un archivo de trabajo adicional.</li>
+        <li>Opcionalmente, activa la opción en el menú lateral para subir un archivo de trabajo adicional.</li>
         <li>La aplicación procesará los datos de cada compañía (OCCIDENT, COSNOR, REALE, PRODUCCIONTOTAL).</li>
         <li>Se rellenarán datos faltantes utilizando la información de PRODUCCIONTOTAL.</li>
         <li>Si se proporcionó un archivo de trabajo adicional, se fusionará con los datos procesados.</li>
