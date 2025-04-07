@@ -4,6 +4,8 @@ from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_
 from scripts.occident import procesar_OCCIDENT
 from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
+from io import BytesIO
+import base64
 
 
 ## Inicializar una variable si no existe
@@ -141,16 +143,20 @@ if uploaded_file_1 is not None:
 
         st.balloons()
         
-        st.subheader("Descargando datos completos...", divider="rainbow")
+        st.subheader("Proceso finalizado: datos completos...", divider="rainbow")
         # Guardar los datos completos en un archivo Excel
-        with st.expander("Descargar datos completos"):
-            fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            st.download_button(label="Descargar datos completos de clientes", data=to_excel(st.session_state.df_COMPLETO_CLIENTES), file_name=f"datos_completos_clientes_{fecha_actual}.xlsx")
-            st.download_button(label="Descargar datos completos de polizas", data=to_excel(st.session_state.df_COMPLETO_POLIZAS), file_name=f"datos_completos_polizas_{fecha_actual}.xlsx")
+        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        with BytesIO() as output_clientes:
+            writer_clientes = pd.ExcelWriter(output_clientes, engine='xlsxwriter')
+            st.session_state.df_COMPLETO_CLIENTES.to_excel(writer_clientes, sheet_name='Clientes')
+            writer_clientes.book.close()
+            st.markdown(f"<a href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{base64.b64encode(output_clientes.getvalue()).decode()}' download='datos_completos_clientes_{fecha_actual}.xlsx' style='font-size: 20px; text-decoration: underline;'>Descargar datos completos de clientes</a>", unsafe_allow_html=True)
 
-
-
-
+        with BytesIO() as output_polizas:
+            writer_polizas = pd.ExcelWriter(output_polizas, engine='xlsxwriter')
+            st.session_state.df_COMPLETO_POLIZAS.to_excel(writer_polizas, sheet_name='Polizas')
+            writer_polizas.book.close()
+            st.markdown(f"<a href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{base64.b64encode(output_polizas.getvalue()).decode()}' download='datos_completos_polizas_{fecha_actual}.xlsx' style='font-size: 20px; text-decoration: underline;'>Descargar datos completos de polizas</a>", unsafe_allow_html=True)
 
 else:
     st.warning("Por favor, sube el fichero ZIP con los datos de las compañias.")
