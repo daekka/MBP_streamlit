@@ -33,7 +33,7 @@ def procesar_OCCIDENT():
     st.session_state.df_OCCIDENT['recibos'] = procesarRecibos(compañia, st.session_state.df_OCCIDENT['recibos'], st.session_state.df_origen_compañias['df_occident_recibos'])
     st.session_state.df_OCCIDENT['polizas'] = cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, st.session_state.df_OCCIDENT['polizas'], st.session_state.df_OCCIDENT['recibos'], "N_POLIZA", "ID_Poliza");
     # Limpiar y formatear el domicilio de los clientes
-    st.session_state.df_OCCIDENT['clientes']["DOMICILIO"] = st.session_state.df_OCCIDENT['clientes'].apply(limpiar_y_formatear_domicilio_OCCIDENT, axis=1)
+    st.session_state.df_OCCIDENT['polizas'] = limpiar_y_formatear_OCCIDENT(st.session_state.df_OCCIDENT['polizas'])
 
 
 def cubrir_polizas_con_datos_recibos_OCCIDENT_old(compañia, df_polizas, df_recibos, campo_id_poliza, campo_id_recibo):
@@ -350,12 +350,14 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
     return df_polizas
 
     
-def limpiar_y_formatear_domicilio_OCCIDENT(row):
+def limpiar_y_formatear_OCCIDENT(df):
+    """
     domicilio = row['DOMICILIO']
     cp = str(row['C.P.'])
     localidad = row['LOCALIDAD'].upper()
     provincia = row['PROVINCIA'].upper()
 
+    
     # Formatear piso y puerta
     match = re.search(r"piso:([^\s,]+)\s*puerta:([^\s,]*)", domicilio, flags=re.IGNORECASE)
     piso_puerta = ""
@@ -375,8 +377,9 @@ def limpiar_y_formatear_domicilio_OCCIDENT(row):
     # Limpiar comas y espacios
     domicilio = re.sub(r",\s*,", ",", domicilio)
     domicilio = domicilio.strip(", ").strip()
-
-    return domicilio
+    """
+    df['RIESGO'] = df['RIESGO'].str.replace(r'^Código:\s+', '', regex=True)
+    return df
 
 
         

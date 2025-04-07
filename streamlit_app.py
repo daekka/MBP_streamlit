@@ -179,7 +179,8 @@ if uploaded_file_1 is not None:
             with st.expander("Detalles de las polizas COMPLETAS"):
                 st.metric(label="Total de polizas COMPLETAS", value=st.session_state.df_COMPLETO_POLIZAS.shape[0], border = True)
                 st.dataframe(st.session_state.df_COMPLETO_POLIZAS)
-
+      
+        # Mapear los datos completos
         st.session_state.df_COMPLETO_POLIZAS = mapeado_resultado_final(st.session_state.df_COMPLETO_POLIZAS)
 
         
