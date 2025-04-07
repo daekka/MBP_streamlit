@@ -56,6 +56,28 @@
             border-radius: 3px;
             font-family: monospace;
         }
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .note {
+            background-color: #fffde7;
+            border-left: 4px solid #ffd600;
+            padding: 10px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +110,58 @@
         <div class="tree-item tree">
             <div class="tree-item file">Producción.xlsx</div>
         </div>
+    </div>
+    
+    <h2>Estructura de los archivos Excel</h2>
+    
+    <h3>Archivos de OCCIDENT, COSNOR y REALE</h3>
+    <p>Cada una de estas compañías debe tener tres archivos Excel:</p>
+    
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Archivo</th>
+                <th>Descripción</th>
+                <th>Columnas importantes</th>
+            </tr>
+            <tr>
+                <td>CLIENTES.xlsx</td>
+                <td>Contiene información de los clientes</td>
+                <td>DNI, Nombre, Apellidos, Dirección, etc.</td>
+            </tr>
+            <tr>
+                <td>POLIZAS.xlsx</td>
+                <td>Contiene información de las pólizas</td>
+                <td>N_POLIZA, DNI, Fecha inicio, Fecha fin, etc.</td>
+            </tr>
+            <tr>
+                <td>RECIBOS.xlsx</td>
+                <td>Contiene información de los recibos</td>
+                <td>N_POLIZA, Fecha, Importe, etc.</td>
+            </tr>
+        </table>
+    </div>
+    
+    <h3>Archivo de PRODUCCIONTOTAL</h3>
+    <p>El archivo de PRODUCCIONTOTAL tiene una estructura diferente:</p>
+    
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Archivo</th>
+                <th>Descripción</th>
+                <th>Columnas importantes</th>
+            </tr>
+            <tr>
+                <td>Producción.xlsx</td>
+                <td>Contiene información combinada de clientes y pólizas</td>
+                <td>DNI, N_POLIZA, Nombre, Apellidos, Dirección, etc.</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="note">
+        <p><strong>Nota:</strong> La aplicación utiliza PRODUCCIONTOTAL como fuente de datos complementaria para rellenar información faltante en los datos de las otras compañías.</p>
     </div>
     
     <h2>Widgets de la aplicación</h2>
@@ -127,6 +201,30 @@
         <li>Asegúrate de que los archivos Excel dentro del ZIP tengan la estructura correcta según la configuración de cada compañía.</li>
         <li>Los archivos deben contener las columnas necesarias para el procesamiento correcto de los datos.</li>
         <li>La aplicación utiliza PRODUCCIONTOTAL como fuente de datos complementaria para rellenar información faltante.</li>
+        <li>Si encuentras algún problema durante el procesamiento, activa los logs para obtener información detallada.</li>
     </ul>
+    
+    <h2>Solución de problemas comunes</h2>
+    
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Problema</th>
+                <th>Solución</th>
+            </tr>
+            <tr>
+                <td>El archivo ZIP no se carga correctamente</td>
+                <td>Verifica que la estructura de carpetas y archivos sea exactamente como se describe en esta documentación.</td>
+            </tr>
+            <tr>
+                <td>Error al procesar los datos</td>
+                <td>Activa los logs para obtener información detallada sobre el error. Verifica que los archivos Excel tengan el formato correcto.</td>
+            </tr>
+            <tr>
+                <td>No se rellenan todos los datos faltantes</td>
+                <td>Verifica que el archivo de PRODUCCIONTOTAL contenga la información necesaria y que las columnas clave (DNI, N_POLIZA) estén correctamente formateadas.</td>
+            </tr>
+        </table>
+    </div>
 </body>
 </html> 

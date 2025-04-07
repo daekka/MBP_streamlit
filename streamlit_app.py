@@ -6,6 +6,7 @@ from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
 from io import BytesIO
 import base64
+import os
 
 
 ## Inicializar una variable si no existe
@@ -25,9 +26,38 @@ if 'df_renovaciones' not in st.session_state:
     st.session_state.df_renovaciones = pd.DataFrame()
 if 'df_fusion' not in st.session_state:
     st.session_state.df_fusion = pd.DataFrame()
+if 'mostrar_ayuda' not in st.session_state:
+    st.session_state.mostrar_ayuda = False
 
 # Configurar Streamlit para usar todo el ancho de la pantalla
 st.set_page_config(layout="wide")
+
+# Función para cargar el archivo HTML de ayuda
+def cargar_ayuda_html():
+    with open('ayuda.html', 'r', encoding='utf-8') as file:
+        html_content = file.read()
+    return html_content
+
+# Crear una barra lateral para la ayuda
+with st.sidebar:
+    st.markdown("## 📚 Ayuda")
+    if st.button("Ver documentación", help="Muestra la documentación de ayuda de la aplicación"):
+        st.session_state.mostrar_ayuda = True
+    
+    st.markdown("---")
+    st.markdown("### Acerca de")
+    st.markdown("MBP EVOLUTION - Integración de datos")
+    st.markdown("Versión 0.1")
+
+# Mostrar la ayuda si el botón fue presionado
+if st.session_state.mostrar_ayuda:
+    ayuda_html = cargar_ayuda_html()
+    st.components.v1.html(ayuda_html, height=800, scrolling=True)
+    
+    # Botón para cerrar la ayuda
+    if st.button("❌ Cerrar Ayuda"):
+        st.session_state.mostrar_ayuda = False
+        st.experimental_rerun()
 
 st.title("MBP EVOLUTION - Integración de datos")
 # Toggle para activar los logs
