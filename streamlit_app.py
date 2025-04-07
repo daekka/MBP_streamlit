@@ -168,7 +168,7 @@ if uploaded_file_1 is not None:
                 st.metric(label="Total de recibos OCCIDENT", value=st.session_state.df_OCCIDENT['recibos'].shape[0], border = True)
                 st.dataframe(st.session_state.df_OCCIDENT['recibos'])
 
-        st.subheader("Rellenando datos con PRODUCCION TOTAL...", divider="orange")
+        st.subheader("Rellenando datos faltantes con PRODUCCION TOTAL...", divider="orange")
         st.session_state.df_COMPLETO_CLIENTES = rellenar_datos_faltantes_con_PT(st.session_state.df_OCCIDENT['clientes'], st.session_state.df_PRODUCCIONTOTAL['clientes'], 'DNI')
         st.session_state.df_COMPLETO_POLIZAS = rellenar_datos_faltantes_con_PT(st.session_state.df_OCCIDENT['polizas'], st.session_state.df_PRODUCCIONTOTAL['polizas'], 'N_POLIZA')
         

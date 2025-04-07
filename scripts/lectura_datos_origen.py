@@ -415,20 +415,21 @@ def rellenar_datos_faltantes_con_PT(df_base, df_complemento, columna_clave):
         st.error(f"La columna {columna_clave} no existe en uno o ambos DataFrames")
         return df_base
 
-    # Eliminar duplicados en df_complemento, manteniendo el último registro para cada DNI
+    # Eliminar duplicados en df_complemento, manteniendo el último registro para cada DNI    
     df_complemento_unicos = df_complemento.drop_duplicates(subset=columna_clave, keep='last')
 
     try:
-        # Crear diccionario de referencia desde df_complemento
+        # Convertir todas las claves a string para asegurar consistencia
+        df_complemento_unicos[columna_clave] = df_complemento_unicos[columna_clave].astype(str)
         complemento_dict = df_complemento_unicos.set_index(columna_clave).to_dict(orient='index')
         
         def completar_fila(fila):
             try:
-                clave = fila[columna_clave]
+                clave = str(fila[columna_clave]).strip()  # Convertir la clave a string y eliminar espacios
                 datos_referencia = complemento_dict.get(clave, {})
-                
                 for columna in df_base.columns:
                     valor = fila[columna]
+
                     
                     # Verificar si es un valor en blanco
                     es_blank = (
@@ -445,7 +446,7 @@ def rellenar_datos_faltantes_con_PT(df_base, df_complemento, columna_clave):
                     
                     if es_blank:
                         nuevo_valor = datos_referencia.get(columna)
-                        
+      
                         # Solo actualizar si el nuevo valor no está en blanco
                         if nuevo_valor is not None and not (
                             pd.isna(nuevo_valor) or 
@@ -481,7 +482,7 @@ def mapeado_resultado_final(df):
     columnas_deseadas = [
         'MARCA', 'ID_DNI', 'CLIENTE', 'CP', 'F_NACIMIENTO', 'F_CARNET', 
         'OTROS_CONDUCTORES', 'N_POLIZA', 'RIESGO', 'MATRICULA', 'F_MATRICULACION', 
-        'F_EFECTO', 'F_PAGO', 'GARANTIAS', 'RAMO', 'GRUPO', 'ESTADO', 
+        'F_EFECTO', 'F_PAGO', 'GARANTIAS', 'COMPAÑÍA', 'RAMO', 'GRUPO', 'ESTADO', 
         'F_EMISION', 'F_RENOVACION', 'M_RENOVACION', 'IMPORTE_ANO_ANTERIOR', 'PRIMA_NETA'
     ]
 
