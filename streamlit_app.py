@@ -6,7 +6,6 @@ from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
 from io import BytesIO
 import base64
-import os
 
 
 ## Inicializar una variable si no existe
@@ -213,6 +212,39 @@ if uploaded_file_1 is not None:
             col2.header("PÓLIZAS")
             col1.metric(label="Fichero Clientes finales", value= st.session_state.df_COMPLETO_CLIENTES['DNI'].nunique(), border = True)
             col2.metric(label="Fichero Pólizas finales", value= st.session_state.df_COMPLETO_POLIZAS['N_POLIZA'].nunique(), border = True)
+            df_clientes_por_compania = pd.DataFrame({
+                "Compañía": ["OCCIDENT", "REALE", "COSNOR", "TOTAL"],
+                "Cantidad de Clientes": [
+                    st.session_state.df_OCCIDENT['clientes'].shape[0],
+                    0,
+                    0,
+                    st.session_state.df_OCCIDENT['clientes'].shape[0]
+                ]
+            })
+            
+            # Crear un gráfico de barras usando la función nativa de Streamlit
+            # Configurar el gráfico para mostrar cada compañía con un color específico
+            col1.bar_chart(
+                df_clientes_por_compania.set_index('Compañía'),
+                use_container_width=True,
+                        )
+            
+            df_polizas_por_compania = pd.DataFrame({
+                "Compañía": ["OCCIDENT", "REALE", "COSNOR", "TOTAL"],
+                "Cantidad de Pólizas": [
+                    st.session_state.df_OCCIDENT['polizas'].shape[0],
+                    0,
+                    0,
+                    st.session_state.df_OCCIDENT['polizas'].shape[0]
+                ]
+            })
+            
+            # Crear un gráfico de barras usando la función nativa de Streamlit
+            # Configurar el gráfico para mostrar cada compañía con un color específico
+            col2.bar_chart(
+                df_polizas_por_compania.set_index('Compañía'),
+                use_container_width=True,
+                        )
 
         # Guardar los datos completos en un archivo Excel
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
