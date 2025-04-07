@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios, rellenar_datos_faltantes_con_PT, to_excel, descargar_ficheros_completos
+from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_plantillas_tablas,crear_df_compañias_vacios, rellenar_datos_faltantes_con_PT, to_excel, descargar_ficheros_completos, mapeado_resultado_final    
 from scripts.occident import procesar_OCCIDENT
 from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
@@ -27,9 +27,10 @@ st.set_page_config(layout="wide")
 
 st.title("MBP EVOLUTION - Integración de datos")
 
-uploaded_file = st.file_uploader("Sube un archivo ZIP", type="zip")
+uploaded_file = st.file_uploader("Sube un archivo ZIP", type="zip", accept_multiple_files=False)
 
 if uploaded_file is not None: 
+
     st.divider()
     st.subheader("Leyendo archivos...", divider="rainbow")
     abrir_zip_generara_df_compañias(uploaded_file)
@@ -79,7 +80,7 @@ if uploaded_file is not None:
 
     st.subheader("Rellenando datos con PRODUCCION TOTAL...", divider="orange")
     st.session_state.df_COMPLETO_CLIENTES = rellenar_datos_faltantes_con_PT(st.session_state.df_OCCIDENT['clientes'], st.session_state.df_PRODUCCIONTOTAL['clientes'], 'DNI')
-    st.session_state.df_COMPLETO_POLIZAS = rellenar_datos_faltantes_con_PT(st.session_state.df_OCCIDENT['polizas'], st.session_state.df_PRODUCCIONTOTAL['polizas'], 'ID_DNI')
+    st.session_state.df_COMPLETO_POLIZAS = rellenar_datos_faltantes_con_PT(st.session_state.df_OCCIDENT['polizas'], st.session_state.df_PRODUCCIONTOTAL['polizas'], 'N_POLIZA')
     with st.expander("Detalles de los clientes COMPLETOS"):
         st.metric(label="Total de clientes COMPLETOS", value=st.session_state.df_COMPLETO_CLIENTES.shape[0], border = True)
         st.dataframe(st.session_state.df_COMPLETO_CLIENTES)
@@ -87,6 +88,8 @@ if uploaded_file is not None:
         st.metric(label="Total de polizas COMPLETAS", value=st.session_state.df_COMPLETO_POLIZAS.shape[0], border = True)
         st.dataframe(st.session_state.df_COMPLETO_POLIZAS)
 
+    # Mapear los datos completos
+    st.session_state.df_COMPLETO_POLIZAS = mapeado_resultado_final(st.session_state.df_COMPLETO_POLIZAS)
 
     st.subheader("Descargando datos completos...", divider="rainbow")
     # Guardar los datos completos en un archivo Excel
@@ -96,3 +99,12 @@ if uploaded_file is not None:
         st.download_button(label="Descargar datos completos de polizas", data=to_excel(st.session_state.df_COMPLETO_POLIZAS), file_name=f"datos_completos_polizas_{fecha_actual}.xlsx")
         
     
+
+    # Mostrar el cargador de archivos cuando el botón sea presionado
+    uploaded_file_resultado_final = st.file_uploader("Selecciona un archivo", type=["xlsx"])
+    
+    if uploaded_file_resultado_final is not None:
+            # Aquí puedes procesar el archivo subido
+            st.write("Archivo cargado correctamente!")
+            st.write(uploaded_file.name)
+

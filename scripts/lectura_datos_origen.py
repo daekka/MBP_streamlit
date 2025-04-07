@@ -307,7 +307,7 @@ def procesar_polizas(
     dfPlantilla,
     columnaClientePolizaOrigen,
     columnaClienteClientesOrigen,
-    columnaIDPolizas
+    columnaIDPolizas,columnaCP,columnaFNacimiento
 ):
     # Crear mapeo de columnas una sola vez
     mapa_columnas = {
@@ -346,9 +346,13 @@ def procesar_polizas(
         id_cliente = poliza[columnaClientePolizaOrigen]
         cliente_info = dict_clientes.get(id_cliente)
 
+
         if cliente_info:
             datos_mapeados['ID_DNI'] = cliente_info.get(columnaIDPolizas)
             datos_mapeados['CLIENTE'] = cliente_info.get(columnaClienteClientesOrigen)
+            datos_mapeados['CP'] = cliente_info.get(columnaCP)
+            datos_mapeados['F_NACIMIENTO'] = cliente_info.get(columnaFNacimiento)
+
 
         datos_mapeados['GRUPO_ASEGURADOR'] = compania
         registros.append(datos_mapeados)
@@ -405,12 +409,10 @@ def rellenar_datos_faltantes_con_PT(df_base, df_complemento, columna_clave):
     # Limpiar nombres de columnas eliminando espacios extra
     df_base.columns = df_base.columns.str.strip()
     df_complemento.columns = df_complemento.columns.str.strip()
-
+    
     # Verificar si la columna clave existe en ambos DataFrames
     if columna_clave not in df_base.columns or columna_clave not in df_complemento.columns:
         st.error(f"La columna {columna_clave} no existe en uno o ambos DataFrames")
-        st.write("Columnas disponibles en df_base:", df_base.columns.tolist())
-        st.write("Columnas disponibles en df_complemento:", df_complemento.columns.tolist())
         return df_base
 
     # Eliminar duplicados en df_complemento, manteniendo el último registro para cada DNI
@@ -427,10 +429,31 @@ def rellenar_datos_faltantes_con_PT(df_base, df_complemento, columna_clave):
                 
                 for columna in df_base.columns:
                     valor = fila[columna]
-                    if pd.isna(valor) or valor == "" or valor == "No informada":
+                    
+                    # Verificar si es un valor en blanco
+                    es_blank = (
+                        pd.isna(valor) or 
+                        valor == "" or 
+                        valor == "No informada" or 
+                        valor == None or
+                        (isinstance(valor, str) and valor.strip() == "") or
+                        (isinstance(valor, str) and valor.lower() == "nan") or
+                        (isinstance(valor, str) and valor.lower() == "none") or
+                        (isinstance(valor, str) and valor.lower() == "no informado") or
+                        (isinstance(valor, str) and valor.lower() == "no disponible")
+                    )
+                    
+                    if es_blank:
                         nuevo_valor = datos_referencia.get(columna)
-                        if nuevo_valor is not None:
+                        
+                        # Solo actualizar si el nuevo valor no está en blanco
+                        if nuevo_valor is not None and not (
+                            pd.isna(nuevo_valor) or 
+                            nuevo_valor == "" or 
+                            (isinstance(nuevo_valor, str) and nuevo_valor.strip() == "")
+                        ):
                             fila[columna] = nuevo_valor
+                
                 return fila
             except Exception as e:
                 st.error(f"Error procesando fila: {str(e)}")
@@ -451,3 +474,17 @@ def descargar_ficheros_completos(fecha_actual):
         st.session_state.df_COMPLETO_POLIZAS.to_excel(writer, sheet_name='Polizas')
         writer.save()
         st.download_button(label="Descargar datos completos", data=output.getvalue(), file_name=f"datos_completos_{fecha_actual}.xlsx")
+
+
+def mapeado_resultado_final(df):
+    # Especifica el orden de las columnas que quieres
+    columnas_deseadas = [
+        'MARCA', 'ID_DNI', 'CLIENTE', 'CP', 'F_NACIMIENTO', 'F_CARNET', 
+        'OTROS_CONDUCTORES', 'N_POLIZA', 'RIESGO', 'MATRICULA', 'F_MATRICULACION', 
+        'F_EFECTO', 'F_PAGO', 'GARANTIAS', 'RAMO', 'GRUPO', 'ESTADO', 
+        'F_EMISION', 'F_RENOVACION', 'M_RENOVACION', 'IMPORTE_ANO_ANTERIOR', 'PRIMA_NETA'
+    ]
+
+    # Filtra las columnas que están en el DataFrame y las ordena según el listado anterior
+    df_filtrado = df[columnas_deseadas]
+    return df_filtrado
