@@ -332,8 +332,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
         else:
             pneta_calculada_ultimo_recibo = pneta_ultimo_recibo
         
-        if periodicidad_ultimo_recibo != periodo_calculada:
-            pneta_calculada_ultimo_recibo = prima_calculada
+        
 
         df_polizas.loc[i, 'PRIMA_NETA'] = pneta_calculada_ultimo_recibo
         df_polizas.loc[i, 'IMPORTE_ANO_ANTERIOR'] = primaanterior_calculada if prima_calculada == pneta_calculada_ultimo_recibo else prima_calculada
