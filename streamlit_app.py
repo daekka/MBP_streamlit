@@ -28,6 +28,9 @@ if 'df_fusion' not in st.session_state:
 st.set_page_config(layout="wide")
 
 st.title("MBP EVOLUTION - Integración de datos")
+# Toggle para activar los logs
+logs_activados = st.checkbox("¿Activar los logs?", value=False)
+
 
 # Subir el primer archivo (obligatorio)
 uploaded_file_1 = st.file_uploader("Sube el fichero ZIP con los datos de las compañias (obligatorio)", type="zip", accept_multiple_files=False)
@@ -93,37 +96,41 @@ if uploaded_file_1 is not None:
 
         st.subheader("Procesando datos PRODUCCION TOTAL...", divider="green")
         procesar_PRODUCCIONTOTAL()
-        with st.expander("Detalles de los clientes PRODUCCION TOTAL"):
-            st.metric(label="Total de clientes PRODUCCION TOTAL", value=st.session_state.df_PRODUCCIONTOTAL['clientes'].shape[0], border = True)
-            st.dataframe(st.session_state.df_PRODUCCIONTOTAL['clientes'])
-        with st.expander("Detalles de las polizas PRODUCCION TOTAL"):
-            st.metric(label="Total de polizas PRODUCCION TOTAL", value=st.session_state.df_PRODUCCIONTOTAL['polizas'].shape[0], border = True)
-            st.dataframe(st.session_state.df_PRODUCCIONTOTAL['polizas'])
+        if logs_activados:
+            with st.expander("Detalles de los clientes PRODUCCION TOTAL"):
+                st.metric(label="Total de clientes PRODUCCION TOTAL", value=st.session_state.df_PRODUCCIONTOTAL['clientes'].shape[0], border = True)
+                st.dataframe(st.session_state.df_PRODUCCIONTOTAL['clientes'])
+
+            with st.expander("Detalles de las polizas PRODUCCION TOTAL"):
+                st.metric(label="Total de polizas PRODUCCION TOTAL", value=st.session_state.df_PRODUCCIONTOTAL['polizas'].shape[0], border = True)
+                st.dataframe(st.session_state.df_PRODUCCIONTOTAL['polizas'])
 
 
         st.subheader("Procesando datos OCCIDENT...", divider="red")
         procesar_OCCIDENT()
         
-        with st.expander("Detalles de los clientes OCCIDENT"):
-            st.metric(label="Total de clientes OCCIDENT", value=st.session_state.df_OCCIDENT['clientes'].shape[0], border = True)
-            st.dataframe(st.session_state.df_OCCIDENT['clientes'])
-        with st.expander("Detalles de las polizas OCCIDENT"):
-            st.metric(label="Total de polizas OCCIDENT", value=st.session_state.df_OCCIDENT['polizas'].shape[0], border = True)
-            st.dataframe(st.session_state.df_OCCIDENT['polizas'])
-        with st.expander("Detalles de los recibos OCCIDENT"):
-            st.metric(label="Total de recibos OCCIDENT", value=st.session_state.df_OCCIDENT['recibos'].shape[0], border = True)
-            st.dataframe(st.session_state.df_OCCIDENT['recibos'])
+        if logs_activados:
+            with st.expander("Detalles de los clientes OCCIDENT"):
+                st.metric(label="Total de clientes OCCIDENT", value=st.session_state.df_OCCIDENT['clientes'].shape[0], border = True)
+                st.dataframe(st.session_state.df_OCCIDENT['clientes'])
+            with st.expander("Detalles de las polizas OCCIDENT"):
+                st.metric(label="Total de polizas OCCIDENT", value=st.session_state.df_OCCIDENT['polizas'].shape[0], border = True)
+                st.dataframe(st.session_state.df_OCCIDENT['polizas'])
+            with st.expander("Detalles de los recibos OCCIDENT"):
+                st.metric(label="Total de recibos OCCIDENT", value=st.session_state.df_OCCIDENT['recibos'].shape[0], border = True)
+                st.dataframe(st.session_state.df_OCCIDENT['recibos'])
 
 
         st.subheader("Rellenando datos con PRODUCCION TOTAL...", divider="orange")
         st.session_state.df_COMPLETO_CLIENTES = rellenar_datos_faltantes_con_PT(st.session_state.df_OCCIDENT['clientes'], st.session_state.df_PRODUCCIONTOTAL['clientes'], 'DNI')
         st.session_state.df_COMPLETO_POLIZAS = rellenar_datos_faltantes_con_PT(st.session_state.df_OCCIDENT['polizas'], st.session_state.df_PRODUCCIONTOTAL['polizas'], 'N_POLIZA')
-        with st.expander("Detalles de los clientes COMPLETOS"):
-            st.metric(label="Total de clientes COMPLETOS", value=st.session_state.df_COMPLETO_CLIENTES.shape[0], border = True)
-            st.dataframe(st.session_state.df_COMPLETO_CLIENTES)
-        with st.expander("Detalles de las polizas COMPLETAS"):
-            st.metric(label="Total de polizas COMPLETAS", value=st.session_state.df_COMPLETO_POLIZAS.shape[0], border = True)
-            st.dataframe(st.session_state.df_COMPLETO_POLIZAS)
+        if logs_activados:
+            with st.expander("Detalles de los clientes COMPLETOS"):
+                st.metric(label="Total de clientes COMPLETOS", value=st.session_state.df_COMPLETO_CLIENTES.shape[0], border = True)
+                st.dataframe(st.session_state.df_COMPLETO_CLIENTES)
+            with st.expander("Detalles de las polizas COMPLETAS"):
+                st.metric(label="Total de polizas COMPLETAS", value=st.session_state.df_COMPLETO_POLIZAS.shape[0], border = True)
+                st.dataframe(st.session_state.df_COMPLETO_POLIZAS)
 
         st.session_state.df_COMPLETO_POLIZAS = mapeado_resultado_final(st.session_state.df_COMPLETO_POLIZAS)
 
