@@ -29,15 +29,19 @@ if 'df_fusion' not in st.session_state:
 if 'mostrar_ayuda' not in st.session_state:
     st.session_state.mostrar_ayuda = False
 
-# Configurar Streamlit para usar todo el ancho de la pantalla
-st.set_page_config(layout="wide", initial_sidebar_state="expanded")
+# Configurar Streamlit para usar todo el ancho de la pantalla y mostrar el logo de MBP
+st.set_page_config(layout="wide", initial_sidebar_state="expanded", page_icon="assets\logo_mbp.png")
+st.logo(
+    "assets\logo_mbp.png"
+)
+
 
 # Aplicar CSS personalizado para hacer el menú lateral más ancho
 st.markdown("""
 <style>
     [data-testid="stSidebar"][aria-expanded="true"]{
-        min-width: 400px;
-        max-width: 400px;
+        min-width: 350px;
+        max-width: 350px;
     }
 </style>
 """, unsafe_allow_html=True)

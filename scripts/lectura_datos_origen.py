@@ -49,7 +49,7 @@ def abrir_zip_generara_df_compañias(uploaded_file):
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(tmpdir)
 
-        # Generar el dataframe de COSNOR
+        # Generar los dataframes de las compañias
         procesar_compañias(tmpdir)
 
 
@@ -176,12 +176,12 @@ def procesar_compañias(tmpdir):
                     st.session_state.df_origen_compañias[nombre_df] = pd.DataFrame()
                 else:
                     # Actualizar el DataFrame existente
-                    st.session_state.df_origen_compañias[nombre_df] = df
+                    st.session_state.df_origen_compañias[nombre_df] = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
     
     # Procesar PRODUCCIONTOTAL
     df_produccion, archivo_produccion = cargar_produccion_total(tmpdir)
     if df_produccion is not None:
-        st.session_state.df_origen_compañias["df_produccion_total"] = df_produccion
+        st.session_state.df_origen_compañias["df_produccion_total"] = df_produccion.applymap(lambda x: x.strip() if isinstance(x, str) else x)
     else:
         # Si no se encuentra el archivo de producción total, crear DataFrame vacío
         st.session_state.df_origen_compañias["df_produccion_total"] = pd.DataFrame()
