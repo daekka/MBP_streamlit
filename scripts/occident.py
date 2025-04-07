@@ -318,6 +318,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
 
         pneta_ultimo_recibo = recibos_poliza['P_Neta'].iloc[-1]
         periodicidad_ultimo_recibo = recibos_poliza['Periodicidad'].iloc[-1]
+
         if periodicidad_ultimo_recibo == 'Anual':
             pneta_calculada_ultimo_recibo = pneta_ultimo_recibo * 1
         elif periodicidad_ultimo_recibo == 'Semestral':
@@ -331,6 +332,9 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
         else:
             pneta_calculada_ultimo_recibo = pneta_ultimo_recibo
         
+        if periodicidad_ultimo_recibo != periodo_calculada:
+            pneta_calculada_ultimo_recibo = prima_calculada
+
         df_polizas.loc[i, 'PRIMA_NETA'] = pneta_calculada_ultimo_recibo
         df_polizas.loc[i, 'IMPORTE_ANO_ANTERIOR'] = primaanterior_calculada if prima_calculada == pneta_calculada_ultimo_recibo else prima_calculada
 
@@ -343,7 +347,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
                 df_polizas.loc[i, 'F_PAGO'] = periodicidad_ultimo_recibo
 
         df_polizas.loc[i, 'M_RENOVACION'] = poliza['F_RENOVACION'].month if isinstance(poliza['F_RENOVACION'], datetime.date) else None
-
+        df_polizas.loc[i, 'PRIMA_FRACCIONADA'] = recibos_poliza['P_Neta'].iloc[-1]
     return df_polizas
 
     

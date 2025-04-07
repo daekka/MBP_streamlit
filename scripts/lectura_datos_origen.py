@@ -483,7 +483,7 @@ def mapeado_resultado_final(df):
         'MARCA', 'ID_DNI', 'CLIENTE', 'CP', 'F_NACIMIENTO', 'F_CARNET', 
         'OTROS_CONDUCTORES', 'N_POLIZA', 'RIESGO', 'MATRICULA', 'F_MATRICULACION', 
         'F_EFECTO', 'F_PAGO', 'GARANTIAS', 'COMPAÑÍA', 'RAMO', 'GRUPO', 'ESTADO', 
-        'F_EMISION', 'F_RENOVACION', 'M_RENOVACION', 'IMPORTE_ANO_ANTERIOR', 'PRIMA_NETA'
+        'F_EMISION', 'F_RENOVACION', 'M_RENOVACION', 'IMPORTE_ANO_ANTERIOR', 'PRIMA_NETA', 'PRIMA_FRACCIONADA'
     ]
 
     # Filtra las columnas que están en el DataFrame y las ordena según el listado anterior
