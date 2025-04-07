@@ -63,7 +63,7 @@ with st.sidebar:
     second_file_required = st.checkbox("¿Quieres subir el fichero de trabajo para fusionar información?", value=True, help="Activa la opción para subir un archivo adicional para fusionar información")
     
     # Mover el checkbox de logs al menú lateral
-    logs_activados = st.checkbox("¿Activar los logs?", value=False, help="Muestra información detallada durante el procesamiento de datos")
+    logs_activados = st.checkbox("Activar logs", value=False, help="Muestra información detallada durante el procesamiento de datos")
     
     st.markdown("---")
     st.markdown("### Acerca de")
@@ -146,6 +146,13 @@ if uploaded_file_1 is not None:
 
         st.subheader("Procesando datos PRODUCCION TOTAL...", divider="green")
         procesar_PRODUCCIONTOTAL()
+        with st.expander("Detalles de los datos PRODUCCION TOTAL"):
+            col1, col2 = st.columns(2)
+            col1.header("CLIENTES")
+            col2.header("PÓLIZAS")
+            col1.metric(label="Fichero Clientes PRODUCCION TOTAL", value= st.session_state.df_PRODUCCIONTOTAL['clientes']['DNI'].nunique(), border = True)
+            col2.metric(label="Fichero Pólizas PRODUCCION TOTAL", value= st.session_state.df_PRODUCCIONTOTAL['polizas']['N_POLIZA'].nunique(), border = True)
+
         if logs_activados:
             with st.expander("Detalles de los clientes PRODUCCION TOTAL"):
                 st.metric(label="Total de clientes PRODUCCION TOTAL", value=st.session_state.df_PRODUCCIONTOTAL['clientes'].shape[0], border = True)
@@ -158,6 +165,13 @@ if uploaded_file_1 is not None:
 
         st.subheader("Procesando datos OCCIDENT...", divider="red")
         procesar_OCCIDENT()
+        with st.expander("Detalles de los datos OCCIDENT"):
+            col1, col2 = st.columns(2)
+            col1.header("CLIENTES")
+            col2.header("PÓLIZAS")
+            col1.metric(label="Fichero Clientes OCCIDENT", value= st.session_state.df_OCCIDENT['clientes']['DNI'].nunique(), border = True)
+            col2.metric(label="Fichero Pólizas OCCIDENT", value= st.session_state.df_OCCIDENT['polizas']['N_POLIZA'].nunique(), border = True)
+
         
         if logs_activados:
             with st.expander("Detalles de los clientes OCCIDENT"):
@@ -193,6 +207,13 @@ if uploaded_file_1 is not None:
         st.balloons()
         
         st.subheader("Proceso finalizado: datos completos...", divider="rainbow")
+        with st.expander("Detalles de los datos finales"):
+            col1, col2 = st.columns(2)
+            col1.header("CLIENTES")
+            col2.header("PÓLIZAS")
+            col1.metric(label="Fichero Clientes finales", value= st.session_state.df_COMPLETO_CLIENTES['DNI'].nunique(), border = True)
+            col2.metric(label="Fichero Pólizas finales", value= st.session_state.df_COMPLETO_POLIZAS['N_POLIZA'].nunique(), border = True)
+
         # Guardar los datos completos en un archivo Excel
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         with BytesIO() as output_clientes:

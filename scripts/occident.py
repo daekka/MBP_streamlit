@@ -346,7 +346,9 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
                 df_polizas.loc[i, 'F_PAGO'] = periodicidad_ultimo_recibo
 
         df_polizas.loc[i, 'M_RENOVACION'] = poliza['F_RENOVACION'].month if isinstance(poliza['F_RENOVACION'], datetime.date) else None
-        df_polizas.loc[i, 'PRIMA_FRACCIONADA'] = recibos_poliza['P_Neta'].iloc[-1]
+        if pneta_calculada_ultimo_recibo != pneta_ultimo_recibo:
+            df_polizas.loc[i, 'PRIMA_FRACCIONADA'] = pneta_ultimo_recibo
+
     return df_polizas
 
     
