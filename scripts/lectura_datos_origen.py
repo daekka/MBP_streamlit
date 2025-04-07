@@ -487,4 +487,5 @@ def mapeado_resultado_final(df):
 
     # Filtra las columnas que están en el DataFrame y las ordena según el listado anterior
     df_filtrado = df[columnas_deseadas]
+    df_filtrado['ESTADO-ACCIONES'] = ""
     return df_filtrado
