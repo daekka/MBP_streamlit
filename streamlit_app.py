@@ -38,15 +38,21 @@ def cargar_ayuda_html():
         html_content = file.read()
     return html_content
 
-# Crear una barra lateral para la ayuda
+# Crear una barra lateral para la ayuda y configuración
 with st.sidebar:
     st.markdown("## 📚 Ayuda")
     if st.button("Ver documentación", help="Muestra la documentación de ayuda de la aplicación"):
         st.session_state.mostrar_ayuda = True
     
     st.markdown("---")
+    st.markdown("## ⚙️ Configuración")
+    # Mover el checkbox de logs al menú lateral
+    logs_activados = st.checkbox("¿Activar los logs?", value=False, help="Muestra información detallada durante el procesamiento de datos")
+    
+    st.markdown("---")
     st.markdown("### Acerca de")
-    st.markdown("MBP EVOLUTION - Integración de datos")
+    st.markdown("## MBP EVOLUTION")
+    st.markdown("Integración de datos")
     st.markdown("Versión 0.1")
 
 # Mostrar la ayuda si el botón fue presionado
@@ -60,9 +66,6 @@ if st.session_state.mostrar_ayuda:
         st.experimental_rerun()
 
 st.title("MBP EVOLUTION - Integración de datos")
-# Toggle para activar los logs
-logs_activados = st.checkbox("¿Activar los logs?", value=False)
-
 
 # Subir el primer archivo (obligatorio)
 uploaded_file_1 = st.file_uploader("Sube el fichero ZIP con los datos de las compañias (obligatorio)", type="zip", accept_multiple_files=False)
