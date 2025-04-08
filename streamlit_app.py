@@ -7,7 +7,7 @@ import datetime
 import pytz
 from io import BytesIO
 import base64
-
+import pytz
 
 ## Inicializar una variable si no existe
 if 'df_origen_compañias' not in st.session_state:
@@ -31,7 +31,11 @@ if 'mostrar_ayuda' not in st.session_state:
 
 # Configurar Streamlit para usar todo el ancho de la pantalla y mostrar el logo de MBP
 st.set_page_config(layout="wide", initial_sidebar_state="expanded", page_icon="assets\logo_mbp.png")
+<<<<<<< HEAD
 #st.logo("assets\logo_mbp.png", size="large")
+=======
+#st.logo("assets/logo_mbp.png", size="large")
+>>>>>>> origin/develop
 
 
 # Aplicar CSS personalizado para hacer el menú lateral más ancho
