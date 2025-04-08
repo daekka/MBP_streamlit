@@ -33,6 +33,7 @@ def procesar_OCCIDENT():
     st.session_state.df_OCCIDENT['recibos'] = procesarRecibos(compañia, st.session_state.df_OCCIDENT['recibos'], st.session_state.df_origen_compañias['df_occident_recibos'])
     st.session_state.df_OCCIDENT['polizas'] = cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, st.session_state.df_OCCIDENT['polizas'], st.session_state.df_OCCIDENT['recibos'], "N_POLIZA", "ID_Poliza");
     # Limpiar y formatear el domicilio de los clientes
+    st.session_state.df_OCCIDENT['clientes'] = limpiar_y_formatear_OCCIDENT(st.session_state.df_OCCIDENT['clientes'])
     st.session_state.df_OCCIDENT['polizas'] = limpiar_y_formatear_OCCIDENT(st.session_state.df_OCCIDENT['polizas'])
 
 
@@ -380,7 +381,20 @@ def limpiar_y_formatear_OCCIDENT(df):
     domicilio = re.sub(r",\s*,", ",", domicilio)
     domicilio = domicilio.strip(", ").strip()
     """
-    df['RIESGO'] = df['RIESGO'].str.replace(r'^Código:\s+', '', regex=True)
+    if 'RIESGO' in df.columns:
+        df['RIESGO'] = df['RIESGO'].str.replace(r'^Código:\s+', '', regex=True)
+    if 'LOCALIDAD' in df.columns:
+        df['LOCALIDAD'] = df['LOCALIDAD'].str.upper()
+    if 'PROVINCIA' in df.columns:
+        df['PROVINCIA'] = df['PROVINCIA'].str.upper()
+    #if 'DOMICILIO' in df.columns:
+        #df['DOMICILIO'] = df['DOMICILIO'].astype(str).str.replace(', ' + df['C.P.'].astype(str), '')
+        #df['DOMICILIO'] = df['DOMICILIO'].astype(str).str.replace(', ' + df['LOCALIDAD'].astype(str), '')
+        #df['DOMICILIO'] = df['DOMICILIO'].astype(str).str.replace(', ' + df['PROVINCIA'].astype(str), '')
+        #df['DOMICILIO'] = df['DOMICILIO'].astype(str).str.replace(r'\s+', ' ', regex=True)
+        #df['DOMICILIO'] = df['DOMICILIO'].astype(str).str.replace(', piso:', ' - Piso:')
+        #df['DOMICILIO'] = df['DOMICILIO'].astype(str).str.replace(', puerta:', ' - Puerta:')
+
     return df
 
 
