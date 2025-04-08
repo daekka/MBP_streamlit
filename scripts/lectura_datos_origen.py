@@ -188,10 +188,10 @@ def procesar_compañias(tmpdir):
 
 
 def leer_plantillas_tablas():
-    st.session_state.df_plantillas_tablas['clientes'] = pd.read_excel("tablas_origen\\tablas_conversion_clientes.xlsx")
-    st.session_state.df_plantillas_tablas['polizas'] = pd.read_excel("tablas_origen\\tablas_conversion_polizas.xlsx")
-    st.session_state.df_plantillas_tablas['recibos'] = pd.read_excel("tablas_origen\\tablas_conversion_recibos.xlsx")
-    st.session_state.df_plantillas_tablas['renovaciones']= pd.read_excel("tablas_origen\\tablas_conversion_renovaciones.xlsx")
+    st.session_state.df_plantillas_tablas['clientes'] = pd.read_excel("tablas_origen/tablas_conversion_clientes.xlsx")
+    st.session_state.df_plantillas_tablas['polizas'] = pd.read_excel("tablas_origen/tablas_conversion_polizas.xlsx")
+    st.session_state.df_plantillas_tablas['recibos'] = pd.read_excel("tablas_origen/tablas_conversion_recibos.xlsx")
+    st.session_state.df_plantillas_tablas['renovaciones']= pd.read_excel("tablas_origen/tablas_conversion_renovaciones.xlsx")
 
 
 def crear_df_vacio_desde_plantilla(df_original):
