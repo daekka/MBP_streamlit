@@ -4,6 +4,7 @@ from scripts.lectura_datos_origen import abrir_zip_generara_df_compañias, leer_
 from scripts.occident import procesar_OCCIDENT
 from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
+import pytz
 from io import BytesIO
 import base64
 
@@ -247,7 +248,8 @@ if uploaded_file_1 is not None:
                         )
 
         # Guardar los datos completos en un archivo Excel
-        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        madrid_tz = pytz.timezone('Europe/Madrid')
+        fecha_actual = datetime.datetime.now(madrid_tz).strftime("%Y-%m-%d_%H-%M-%S")
         with BytesIO() as output_clientes:
             writer_clientes = pd.ExcelWriter(output_clientes, engine='xlsxwriter')
             st.session_state.df_COMPLETO_CLIENTES.to_excel(writer_clientes, sheet_name='Clientes', index=False)
