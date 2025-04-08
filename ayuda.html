@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda - MBP EVOLUTION</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .tree {
+            margin-left: 20px;
+            border-left: 1px solid #ccc;
+            padding-left: 20px;
+        }
+        .tree-item {
+            position: relative;
+            margin-bottom: 5px;
+        }
+        .tree-item::before {
+            content: "├─";
+            position: absolute;
+            left: -20px;
+        }
+        .tree-item:last-child::before {
+            content: "└─";
+        }
+        .folder {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .file {
+            color: #2ecc71;
+        }
+        .widget {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .widget-title {
+            font-weight: bold;
+            color: #3498db;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .note {
+            background-color: #fffde7;
+            border-left: 4px solid #ffd600;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .sidebar {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ayuda - MBP EVOLUTION</h1>
+    <p>Versión 0.1</p>
+    
+    <h2>Estructura del archivo ZIP</h2>
+    <p>El archivo ZIP debe contener la siguiente estructura de carpetas y archivos:</p>
+    
+    <div class="tree">
+        <div class="tree-item folder">datos_compañias.zip</div>
+        <div class="tree-item folder">OCCIDENT</div>
+        <div class="tree-item tree">
+            <div class="tree-item file">CLIENTES.xlsx</div>
+            <div class="tree-item file">POLIZAS.xlsx</div>
+            <div class="tree-item file">RECIBOS.xlsx</div>
+        </div>
+        <div class="tree-item folder">COSNOR</div>
+        <div class="tree-item tree">
+            <div class="tree-item file">CLIENTES.xlsx</div>
+            <div class="tree-item file">POLIZAS.xlsx</div>
+            <div class="tree-item file">RECIBOS.xlsx</div>
+        </div>
+        <div class="tree-item folder">REALE</div>
+        <div class="tree-item tree">
+            <div class="tree-item file">CLIENTES.xlsx</div>
+            <div class="tree-item file">POLIZAS.xlsx</div>
+            <div class="tree-item file">RECIBOS.xlsx</div>
+        </div>
+        <div class="tree-item folder">PRODUCCIONTOTAL</div>
+        <div class="tree-item tree">
+            <div class="tree-item file">Producción.xlsx</div>
+        </div>
+    </div>
+    
+    <h2>Estructura de los archivos Excel</h2>
+    
+    <h3>Archivos de OCCIDENT, COSNOR y REALE</h3>
+    <p>Cada una de estas compañías debe tener tres archivos Excel:</p>
+    
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Archivo</th>
+                <th>Descripción</th>
+                <th>Columnas importantes</th>
+            </tr>
+            <tr>
+                <td>CLIENTES.xlsx</td>
+                <td>Contiene información de los clientes</td>
+                <td>DNI, Nombre, Apellidos, Dirección, etc.</td>
+            </tr>
+            <tr>
+                <td>POLIZAS.xlsx</td>
+                <td>Contiene información de las pólizas</td>
+                <td>N_POLIZA, DNI, Fecha inicio, Fecha fin, etc.</td>
+            </tr>
+            <tr>
+                <td>RECIBOS.xlsx</td>
+                <td>Contiene información de los recibos</td>
+                <td>N_POLIZA, Fecha, Importe, etc.</td>
+            </tr>
+        </table>
+    </div>
+    
+    <h3>Archivo de PRODUCCIONTOTAL</h3>
+    <p>El archivo de PRODUCCIONTOTAL tiene una estructura diferente:</p>
+    
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Archivo</th>
+                <th>Descripción</th>
+                <th>Columnas importantes</th>
+            </tr>
+            <tr>
+                <td>Producción.xlsx</td>
+                <td>Contiene información combinada de clientes y pólizas</td>
+                <td>DNI, N_POLIZA, Nombre, Apellidos, Dirección, etc.</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="note">
+        <p><strong>Nota:</strong> La aplicación utiliza PRODUCCIONTOTAL como fuente de datos complementaria para rellenar información faltante en los datos de las otras compañías.</p>
+    </div>
+    
+    <h2>Menú lateral</h2>
+    
+    <div class="sidebar">
+        <h3>Ayuda</h3>
+        <p>El botón "Ver documentación" muestra esta página de ayuda con información detallada sobre la aplicación.</p>
+        
+        <h3>Configuración</h3>
+        <p>El checkbox "¿Activar los logs?" permite activar o desactivar la visualización de logs detallados durante el procesamiento de datos. Cuando está activado, muestra información detallada sobre los datos procesados para cada compañía.</p>
+        
+        <p>El checkbox "¿Quieres subir el fichero de trabajo para fusionar información?" permite activar o desactivar la opción de subir un archivo adicional para fusionar información. Cuando está activado, habilita el selector de archivos para el fichero de trabajo.</p>
+    </div>
+    
+    <h2>Widgets de la aplicación</h2>
+    
+    <div class="widget">
+        <div class="widget-title">Subir fichero ZIP con datos de compañías</div>
+        <p>Selector de archivos que permite subir el archivo ZIP con la estructura de carpetas y archivos descrita anteriormente. Este archivo es obligatorio para el funcionamiento de la aplicación.</p>
+    </div>
+    
+    <div class="widget">
+        <div class="widget-title">Subir archivo de trabajo para fusionar información</div>
+        <p>Selector de archivos que permite subir un archivo Excel adicional para fusionar información con los datos procesados. Este archivo es opcional y solo está disponible cuando se activa la opción correspondiente en el menú lateral.</p>
+    </div>
+    
+    <h2>Proceso de la aplicación</h2>
+    <ol>
+        <li>Sube el archivo ZIP con la estructura de carpetas y archivos descrita.</li>
+        <li>Opcionalmente, activa la opción en el menú lateral para subir un archivo de trabajo adicional.</li>
+        <li>La aplicación procesará los datos de cada compañía (OCCIDENT, COSNOR, REALE, PRODUCCIONTOTAL).</li>
+        <li>Se rellenarán datos faltantes utilizando la información de PRODUCCIONTOTAL.</li>
+        <li>Si se proporcionó un archivo de trabajo adicional, se fusionará con los datos procesados.</li>
+        <li>Al finalizar, se generarán dos archivos Excel para descargar: uno con los datos completos de clientes y otro con los datos completos de pólizas.</li>
+    </ol>
+    
+    <h2>Notas importantes</h2>
+    <ul>
+        <li>Asegúrate de que los archivos Excel dentro del ZIP tengan la estructura correcta según la configuración de cada compañía.</li>
+        <li>Los archivos deben contener las columnas necesarias para el procesamiento correcto de los datos.</li>
+        <li>La aplicación utiliza PRODUCCIONTOTAL como fuente de datos complementaria para rellenar información faltante.</li>
+        <li>Si encuentras algún problema durante el procesamiento, activa los logs para obtener información detallada.</li>
+    </ul>
+    
+    <h2>Solución de problemas comunes</h2>
+    
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Problema</th>
+                <th>Solución</th>
+            </tr>
+            <tr>
+                <td>El archivo ZIP no se carga correctamente</td>
+                <td>Verifica que la estructura de carpetas y archivos sea exactamente como se describe en esta documentación.</td>
+            </tr>
+            <tr>
+                <td>Error al procesar los datos</td>
+                <td>Activa los logs para obtener información detallada sobre el error. Verifica que los archivos Excel tengan el formato correcto.</td>
+            </tr>
+            <tr>
+                <td>No se rellenan todos los datos faltantes</td>
+                <td>Verifica que el archivo de PRODUCCIONTOTAL contenga la información necesaria y que las columnas clave (DNI, N_POLIZA) estén correctamente formateadas.</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html> 
