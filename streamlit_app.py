@@ -6,7 +6,7 @@ from scripts.producciontotal import procesar_PRODUCCIONTOTAL
 import datetime
 from io import BytesIO
 import base64
-
+import pytz
 
 ## Inicializar una variable si no existe
 if 'df_origen_compañias' not in st.session_state:
@@ -30,7 +30,7 @@ if 'mostrar_ayuda' not in st.session_state:
 
 # Configurar Streamlit para usar todo el ancho de la pantalla y mostrar el logo de MBP
 st.set_page_config(layout="wide", initial_sidebar_state="expanded", page_icon="assets\logo_mbp.png")
-st.logo("assets/logo_mbp.png", size="large")
+#st.logo("assets/logo_mbp.png", size="large")
 
 
 # Aplicar CSS personalizado para hacer el menú lateral más ancho
@@ -247,7 +247,8 @@ if uploaded_file_1 is not None:
                         )
 
         # Guardar los datos completos en un archivo Excel
-        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        madrid_tz = pytz.timezone('Europe/Madrid')
+        fecha_actual = datetime.datetime.now(madrid_tz).strftime("%Y-%m-%d_%H-%M-%S")
         with BytesIO() as output_clientes:
             writer_clientes = pd.ExcelWriter(output_clientes, engine='xlsxwriter')
             st.session_state.df_COMPLETO_CLIENTES.to_excel(writer_clientes, sheet_name='Clientes', index=False)

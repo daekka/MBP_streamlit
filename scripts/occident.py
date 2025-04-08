@@ -56,6 +56,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT_old(compañia, df_polizas, df_reci
             tipo_periodicidad = None
             prima_leida_ultimo_recibo = None
             periodo_leido_ultimo_recibo = None
+            ultima_prima_no_completo = None
         else:
             datos_unicos = {}
             for _, row in recibos_poliza.iterrows():
@@ -156,6 +157,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT_old(compañia, df_polizas, df_reci
                 primaanterior = primas_por_periodo[-2] if len(primas_por_periodo) >= 2 else None
                 prima_leida_ultimo_recibo = datos_normalizados[-1]['prima_neta']
                 periodo_leido_ultimo_recibo = datos_normalizados[-1]['periodicidad']
+                ultima_prima_no_completo = None
 
         if periodo_leido_ultimo_recibo == "Anual":
             prima_leida_ultimo_recibo *= 1
@@ -216,6 +218,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
             primaanterior_calculada = None
             tipo_periodicidad = None
             periodo_calculada = None
+            ultima_prima_no_completo = None
 
 
         if recibos_poliza.shape[0] == 1:
@@ -240,6 +243,7 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
             prima_calculada = recibos_poliza['P_Neta'].iloc[0]
             primaanterior_calculada = None
             periodo_calculada = tipo_periodicidad
+            ultima_prima_no_completo = None
 
         if recibos_poliza.shape[0] > 1:
             # Convertir el índice a una columna para poder trabajar con él
@@ -312,7 +316,10 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
 
             ultima_prima_completo = agrupado[agrupado['bloque_completo'] == True]['P_Neta'].iloc[-1]
             prima_calculada = ultima_prima_completo if not pd.isna(ultima_prima_completo) else 0
-            primaanterior_calculada = agrupado[agrupado['bloque_completo'] == True]['P_Neta'].iloc[-2] if len(agrupado[agrupado['bloque_completo'] == True]) > 1 else None
+            ultima_prima_no_completo = agrupado[agrupado['bloque_completo'] == False]['P_Neta'].iloc[-1] if len(agrupado[agrupado['bloque_completo'] == False]) > 0 else None
+            #primaanterior_calculada = ultima_prima_no_completo if not pd.isna(ultima_prima_no_completo) else None
+            antepenultima_prima_completo = agrupado[agrupado['bloque_completo'] == True]['P_Neta'].iloc[-2] if len(agrupado[agrupado['bloque_completo'] == True]) > 1 else None
+            primaanterior_calculada = antepenultima_prima_completo if not pd.isna(antepenultima_prima_completo) else None
             periodo_calculada = agrupado[agrupado['bloque_completo'] == True]['Periodicidad_detectada'].iloc[-1]
 
 
@@ -333,10 +340,13 @@ def cubrir_polizas_con_datos_recibos_OCCIDENT(compañia, df_polizas, df_recibos,
         else:
             pneta_calculada_ultimo_recibo = pneta_ultimo_recibo
         
-        
-
-        df_polizas.loc[i, 'PRIMA_NETA'] = pneta_calculada_ultimo_recibo
-        df_polizas.loc[i, 'IMPORTE_ANO_ANTERIOR'] = primaanterior_calculada if prima_calculada == pneta_calculada_ultimo_recibo else prima_calculada
+        if ultima_prima_no_completo is not None:
+            df_polizas.loc[i, 'PRIMA_NETA'] = pneta_calculada_ultimo_recibo
+            df_polizas.loc[i, 'IMPORTE_ANO_ANTERIOR'] = prima_calculada
+        else:
+            df_polizas.loc[i, 'PRIMA_NETA'] = prima_calculada
+            df_polizas.loc[i, 'IMPORTE_ANO_ANTERIOR'] = primaanterior_calculada
+        #df_polizas.loc[i, 'IMPORTE_ANO_ANTERIOR'] = primaanterior_calculada if prima_calculada == pneta_calculada_ultimo_recibo else prima_calculada
 
         if pneta_calculada_ultimo_recibo == prima_calculada:
             df_polizas.loc[i, 'F_PAGO'] = periodicidad_ultimo_recibo
